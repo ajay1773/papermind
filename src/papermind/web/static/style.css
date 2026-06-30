@@ -195,6 +195,9 @@ nav.site-nav {
 main {
     flex: 1;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
 }
 
 .container {
@@ -204,11 +207,11 @@ main {
 }
 
 .section {
-    padding: 80px 0;
+    padding: 0;
 }
 
 .section--tight {
-    padding: 48px 0;
+    padding: 40px 0 0;
 }
 
 .section--stone {
@@ -904,7 +907,7 @@ footer.site-footer {
 
 @media (max-width: 768px) {
     .section {
-        padding: 56px 0;
+        padding: 0;
     }
 
     .hero {
@@ -984,7 +987,7 @@ footer.site-footer {
 
 .hero--composed {
     position: relative;
-    padding: 88px 0 32px;
+    padding: 72px 0 0;
     overflow: hidden;
     isolation: isolate;
 }
@@ -1265,7 +1268,7 @@ footer.site-footer {
 /* ----- Trust strip ----- */
 
 .trust-strip {
-    padding: 56px 0 24px;
+    padding: 24px 0;
     border-bottom: 1px solid var(--hairline);
 }
 
@@ -1453,7 +1456,6 @@ footer.site-footer {
     color: var(--near-black);
     padding: 22px 0;
     overflow: hidden;
-    margin-top: 64px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -1543,7 +1545,7 @@ footer.site-footer {
 
 @media (max-width: 768px) {
     .hero--composed {
-        padding: 56px 0 16px;
+        padding: 48px 0 0;
     }
 
     .marquee {
@@ -1948,12 +1950,10 @@ footer.site-footer--composed {
 /* ── Input row ────────────────────────────────────────────── */
 .briefing-input-wrap {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 14px;
-    padding: 10px 10px 10px 20px;
-    gap: 12px;
     transition: border-color 150ms ease;
 }
 
@@ -1962,20 +1962,66 @@ footer.site-footer--composed {
 }
 
 .briefing-input-wrap input[type="text"] {
-    flex: 1;
     background: transparent;
     border: 0;
     color: var(--canvas);
     font-size: 16px;
     font-family: var(--font-body);
     outline: none;
-    min-width: 0;
-    line-height: 1.4;
+    line-height: 1.5;
+    padding: 18px 20px;
+    width: 100%;
 }
 
 .briefing-input-wrap input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(255, 255, 255, 0.35);
     font-size: 15px;
+}
+
+.briefing-input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 10px 12px;
+}
+
+.mic-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    flex-shrink: 0;
+}
+
+.mic-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.mic-btn--listening {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #fff;
+    animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+.mic-btn--unsupported {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+@keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 119, 89, 0.5); }
+    55%       { box-shadow: 0 0 0 8px rgba(255, 119, 89, 0); }
 }
 
 .input-run-btn {
@@ -1989,7 +2035,7 @@ footer.site-footer--composed {
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    padding: 12px 22px;
+    padding: 10px 22px;
     border-radius: var(--r-pill);
     white-space: nowrap;
     flex-shrink: 0;
@@ -2667,16 +2713,6 @@ footer.site-footer--composed {
 
 @media (max-width: 768px) {
     .briefing-composer { padding: 20px; }
-
-    .briefing-input-wrap {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .briefing-input-wrap .btn-primary {
-        justify-content: center;
-    }
 
     .preview-grid { grid-template-columns: 1fr; gap: 0; }
     .preview-card {

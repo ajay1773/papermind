@@ -48,10 +48,22 @@
                     aria-label="Research topic"
                     required
                 >
-                <button type="submit" class="input-run-btn">
-                    <span id="briefing-spinner" class="briefing-spinner htmx-indicator">Running…</span>
-                    <span class="input-run-label">Run →</span>
-                </button>
+                <div class="briefing-input-actions">
+                    <button type="button" class="mic-btn" id="mic-btn"
+                            aria-label="Use microphone" title="Speak your topic">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="22"/>
+                        </svg>
+                    </button>
+                    <button type="submit" class="input-run-btn">
+                        <span id="briefing-spinner" class="briefing-spinner htmx-indicator">Running…</span>
+                        <span class="input-run-label">Run →</span>
+                    </button>
+                </div>
             </div>
             <p id="topic-hint" class="topic-hint" aria-live="polite"></p>
 
@@ -188,6 +200,74 @@
     // Pre-populate input from ?topic= query param (used by error retry link)
     const prefillTopic = new URLSearchParams(window.location.search).get('topic');
     if (prefillTopic && topicInput) topicInput.value = prefillTopic;
+
+    // ── Browser-native Speech-to-Text ──────────────────────────────
+    const micBtn = document.getElementById('mic-btn');
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (micBtn) {
+        if (!SR) {
+            micBtn.classList.add('mic-btn--unsupported');
+            micBtn.setAttribute('title', 'Speech recognition is not supported in this browser');
+        } else {
+            const recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.interimResults = true;
+            recognition.continuous = true;   // keeps listening until user stops it
+            recognition.maxAlternatives = 1;
+
+            let listening = false;
+            let baseText = '';    // text already in the field before mic started
+            let finalBuffer = ''; // accumulated final results this session
+
+            micBtn.addEventListener('click', () => {
+                if (listening) {
+                    recognition.stop();
+                } else {
+                    // snapshot whatever is already typed
+                    baseText = topicInput ? topicInput.value.trimEnd() : '';
+                    finalBuffer = '';
+                    recognition.start();
+                }
+            });
+
+            recognition.onstart = () => {
+                listening = true;
+                micBtn.classList.add('mic-btn--listening');
+                micBtn.setAttribute('aria-label', 'Stop listening');
+            };
+
+            recognition.onend = () => {
+                listening = false;
+                micBtn.classList.remove('mic-btn--listening');
+                micBtn.setAttribute('aria-label', 'Use microphone');
+            };
+
+            recognition.onresult = (e) => {
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const r = e.results[i];
+                    if (r.isFinal) {
+                        finalBuffer += r[0].transcript;
+                    } else {
+                        interim += r[0].transcript;
+                    }
+                }
+                // Append spoken text after whatever was already in the field
+                const prefix = baseText ? baseText + ' ' : '';
+                if (topicInput) topicInput.value = prefix + finalBuffer + interim;
+            };
+
+            recognition.onerror = (e) => {
+                listening = false;
+                micBtn.classList.remove('mic-btn--listening');
+                micBtn.setAttribute('aria-label', 'Use microphone');
+                if (e.error === 'not-allowed') {
+                    micBtn.setAttribute('title', 'Microphone access was denied');
+                }
+            };
+        }
+    }
 </script>
 
 {% endblock %}

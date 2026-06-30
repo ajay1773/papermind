@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Papermind — Ask your documents anything{% endblock %}
+{% block title %}Papermind — Research briefings on any topic{% endblock %}
 
 {% block content %}
 <div class="cursor-blob" aria-hidden="true"></div>
@@ -12,15 +12,14 @@
 <section class="hero hero--composed">
     <div class="container hero-copy">
         <img src="/static/images/logo.svg" alt="" aria-hidden="true" class="hero-mark fade-up">
-        <span class="eyebrow reveal-mask"><span>Retrieval &middot; Reasoning &middot; Answers</span></span>
-        <h1 class="display-hero split-words">Ask your documents anything.</h1>
-        <p class="lede fade-up">Upload PDFs, text, and markdown — then search across them with natural language. Built on embeddings, grounded in your own files.</p>
+        <span class="eyebrow reveal-mask"><span>Research &middot; Synthesis &middot; Briefings</span></span>
+        <h1 class="display-hero split-words">Research any topic, grounded in recent papers.</h1>
+        <p class="lede fade-up">Enter a research topic. The agent reads recent academic papers, extracts genuinely new findings, and returns a structured briefing with citations — in about 5 minutes.</p>
         <div class="hero-actions fade-up">
-            <a href="/upload-document" class="btn-primary">
-                Upload a document
+            <a href="/briefing" class="btn-primary">
+                Start a briefing
                 <span class="btn-arrow" aria-hidden="true">↗</span>
             </a>
-            <a href="/docs" target="_blank" rel="noopener" class="btn-secondary">Read the API docs &rarr;</a>
         </div>
     </div>
 
@@ -30,34 +29,34 @@
             <header class="console-head">
                 <span class="agent-name">
                     <span class="status-dot" aria-hidden="true"></span>
-                    Papermind &middot; retrieval agent
+                    Papermind &middot; research agent
                 </span>
-                <span class="console-meta mono-label">live &middot; 2 sources</span>
+                <span class="console-meta mono-label">live &middot; 14 papers</span>
             </header>
 
             <div class="console-body">
                 <div class="console-line">
-                    <span class="console-tag">ASK</span>
-                    <p class="console-prompt" data-typewriter>What does our refund policy say about international orders?</p>
+                    <span class="console-tag">TOPIC</span>
+                    <p class="console-prompt" data-typewriter>What are the latest advances in protein structure prediction?</p>
                 </div>
 
                 <div class="console-line console-answer">
-                    <span class="console-tag console-tag--coral">ANSWER</span>
+                    <span class="console-tag console-tag--coral">BRIEF</span>
                     <p class="console-response">
-                        <span class="stream-chunk">Refunds for international orders</span>
-                        <span class="stream-chunk"> are processed within 30 business days</span>
-                        <span class="stream-chunk"> of return receipt, net of original shipping.</span>
+                        <span class="stream-chunk">Transformer models now achieve near-experimental accuracy,</span>
+                        <span class="stream-chunk"> with recent work extending to multi-chain complexes</span>
+                        <span class="stream-chunk"> and intrinsically disordered regions.</span>
                     </p>
                 </div>
 
                 <footer class="console-citations" aria-label="Sources">
                     <span class="citation-chip">
                         <span class="cite-dot" aria-hidden="true"></span>
-                        refund-policy.pdf &middot; <span class="cite-page">p.&nbsp;4</span>
+                        Nature Methods &middot; <span class="cite-page">2024</span>
                     </span>
                     <span class="citation-chip">
                         <span class="cite-dot" aria-hidden="true"></span>
-                        international-shipping.md
+                        OpenAlex &middot; 14 papers
                     </span>
                 </footer>
             </div>
@@ -85,8 +84,8 @@
                     </g>
                 </svg>
                 <div class="photo-overlay">
-                    <span class="mono-label" style="color:#ffffff; opacity:.8;">02 &middot; Embedding</span>
-                    <p class="photo-caption">A vector for every passage. A path for every question.</p>
+                    <span class="mono-label" style="color:#ffffff; opacity:.8;">02 &middot; Research</span>
+                    <p class="photo-caption">Every paper read. Every finding extracted. Every claim cited.</p>
                 </div>
             </div>
         </aside>
@@ -98,160 +97,405 @@
      ============================================================ -->
 <section class="trust-strip">
     <div class="container">
-        <p class="trust-copy mono-label">Built for teams running on their own knowledge</p>
+        <p class="trust-copy mono-label">Powered by open research infrastructure</p>
         <div class="trust-logos" role="list">
-            <span class="trust-logo" role="listitem">acme corp</span>
-            <span class="trust-logo" role="listitem">north&middot;loop</span>
-            <span class="trust-logo" role="listitem">paperline</span>
-            <span class="trust-logo" role="listitem">forge</span>
-            <span class="trust-logo" role="listitem">basecase</span>
-            <span class="trust-logo" role="listitem">veritex</span>
+            <span class="trust-logo" role="listitem">OpenAlex</span>
+            <span class="trust-logo" role="listitem">Semantic Scholar</span>
+            <span class="trust-logo" role="listitem">GPT-4o</span>
+            <span class="trust-logo" role="listitem">LangGraph</span>
+            <span class="trust-logo" role="listitem">FastAPI</span>
         </div>
     </div>
 </section>
 
 <!-- ============================================================
-     LIVE SEARCH COMPOSER (HTMX-backed)
+     BENTO GRID — how the agent works
      ============================================================ -->
-<section class="container search-section" aria-labelledby="search-heading" data-reveal>
-    <div class="search-head">
-        <span class="eyebrow">Live search</span>
-        <h2 id="search-heading" class="heading-section" style="max-width: 24ch;">Try it on your collection right now.</h2>
-    </div>
+<style>
+.bento-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.65fr 1.2fr;
+    grid-template-rows: 300px 240px;
+    gap: 10px;
+    margin-top: 40px;
+}
+.bento-cell {
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    padding: 30px 28px;
+    display: flex;
+    flex-direction: column;
+}
+.bento-cell-1 { grid-column: 1 / 3; grid-row: 1; background: #17171c; color: #fff; }
+.bento-cell-2 { grid-column: 3 / 4; grid-row: 1; background: #efede9; color: #17171c; }
+.bento-cell-3 { grid-column: 1 / 2; grid-row: 2; background: #fff2ec; color: #17171c; }
+.bento-cell-4 { grid-column: 2 / 4; grid-row: 2; background: #17171c; color: #fff; }
+.bento-step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    margin: 0 0 10px;
+}
+.bento-title {
+    font-size: clamp(15px, 1.8vw, 20px);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.25;
+    margin: 0 0 10px;
+}
+.bento-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    font-weight: 400;
+    opacity: 0.55;
+    max-width: 32ch;
+}
+.bento-visual-abs {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    pointer-events: none;
+}
+@media (max-width: 760px) {
+    .bento-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+    }
+    .bento-cell-1, .bento-cell-4 { grid-column: 1 / -1; min-height: 240px; }
+    .bento-cell-2, .bento-cell-3 { min-height: 200px; }
+    .bento-cell-3 { grid-row: auto; grid-column: auto; }
+    .bento-cell-4 { grid-row: auto; grid-column: auto; }
+}
+@media (max-width: 480px) {
+    .bento-grid { grid-template-columns: 1fr; }
+    .bento-cell-1, .bento-cell-2, .bento-cell-3, .bento-cell-4 {
+        grid-column: 1; grid-row: auto; min-height: 200px;
+    }
+}
+</style>
 
-    <form class="composer composer--inline" role="search" autocomplete="off" onsubmit="return false;">
-        <div class="composer-header">
-            <span class="agent-name">
-                <span class="status-dot" aria-hidden="true"></span>
-                Papermind &middot; retrieval agent
-            </span>
-            <span class="mono-label">v0.1</span>
-        </div>
-        <div class="composer-input-row">
-            <input
-                type="search"
-                name="q"
-                placeholder="Type a question — e.g. What does our policy say about refunds?"
-                hx-get="/search"
-                hx-trigger="input changed delay:400ms, search"
-                hx-target="#search-results"
-                hx-indicator="#search-spinner"
-                aria-label="Search your documents"
-            >
-        </div>
-        <div class="composer-hint">
-            <span id="search-spinner" class="htmx-indicator">Searching across your collection…</span>
-            <span><span class="kbd">/</span> to focus</span>
-        </div>
-    </form>
-
-    <div id="search-results"></div>
-</section>
-
-<!-- ============================================================
-     CAPABILITIES — three step rail
-     ============================================================ -->
-<section class="section section--rail" data-reveal>
+<section data-reveal>
     <div class="container">
-        <div class="rail-head">
-            <span class="eyebrow">How it works</span>
-            <h2 class="heading-section" style="max-width: 22ch;">Three steps from raw files to grounded answers.</h2>
+    <div class="rail-head">
+        <span class="eyebrow">Under the hood</span>
+        <h2 class="heading-section" style="max-width: 26ch;">Four steps. One structured briefing.</h2>
+    </div>
+
+    <div class="bento-grid">
+
+        <!-- ── Cell 1 · Plan — dark, wide left, tall ── -->
+        <div class="bento-cell bento-cell-1" id="bento-plan">
+            <p class="bento-step">01 &middot; Plan</p>
+            <h3 class="bento-title">Decomposes your topic into targeted queries</h3>
+            <p class="bento-desc">Before reading a single paper the agent maps search angles, picks date ranges, and ranks candidates by likely relevance.</p>
+
+            <svg class="bento-visual-abs" width="230" height="148" viewBox="0 0 230 148" aria-hidden="true">
+                <circle id="bp-root" cx="26" cy="74" r="8" fill="#ff7759"/>
+                <line id="bp-l1" x1="34" y1="74" x2="108" y2="28"  stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-dasharray="90"  stroke-dashoffset="90"/>
+                <line id="bp-l2" x1="34" y1="74" x2="108" y2="74"  stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-dasharray="75"  stroke-dashoffset="75"/>
+                <line id="bp-l3" x1="34" y1="74" x2="108" y2="120" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-dasharray="90"  stroke-dashoffset="90"/>
+                <circle id="bp-m1" cx="114" cy="28"  r="5" fill="rgba(255,255,255,0.16)" opacity="0"/>
+                <circle id="bp-m2" cx="114" cy="74"  r="5" fill="rgba(255,255,255,0.16)" opacity="0"/>
+                <circle id="bp-m3" cx="114" cy="120" r="5" fill="rgba(255,255,255,0.16)" opacity="0"/>
+                <line id="bp-s1" x1="119" y1="28"  x2="195" y2="14"  stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <line id="bp-s2" x1="119" y1="28"  x2="195" y2="42"  stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <line id="bp-s3" x1="119" y1="74"  x2="195" y2="62"  stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <line id="bp-s4" x1="119" y1="74"  x2="195" y2="86"  stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <line id="bp-s5" x1="119" y1="120" x2="195" y2="108" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <line id="bp-s6" x1="119" y1="120" x2="195" y2="132" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="80" stroke-dashoffset="80"/>
+                <circle id="bp-f1" cx="201" cy="14"  r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+                <circle id="bp-f2" cx="201" cy="42"  r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+                <circle id="bp-f3" cx="201" cy="62"  r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+                <circle id="bp-f4" cx="201" cy="86"  r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+                <circle id="bp-f5" cx="201" cy="108" r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+                <circle id="bp-f6" cx="201" cy="132" r="3.5" fill="rgba(255,255,255,0.26)" opacity="0"/>
+            </svg>
         </div>
 
-        <div class="capability-grid capability-grid--rail">
-            <article class="capability-card capability-card--rail">
-                <span class="rail-step">01</span>
-                <span class="mono-label">Ingest</span>
-                <h3 class="heading-card">Upload anything</h3>
-                <p class="body">PDF, text, and markdown files are extracted, chunked, and embedded into a local ChromaDB collection.</p>
-                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
-                    <rect x="14" y="10" width="36" height="44" rx="2"/>
-                    <path d="M22 22h20M22 30h20M22 38h12"/>
-                    <path d="M32 6v8M28 10l4-4 4 4"/>
+        <!-- ── Cell 2 · Read — stone, narrow right, tall ── -->
+        <div class="bento-cell bento-cell-2" id="bento-read">
+            <p class="bento-step">02 &middot; Read</p>
+            <h3 class="bento-title">Up to 20 papers read in full</h3>
+            <div style="flex:1; display:flex; align-items:flex-end; gap:18px;">
+                <svg width="76" height="104" viewBox="0 0 76 104" aria-hidden="true">
+                    <rect id="br-p4" x="10" y="10" width="58" height="84" rx="4" fill="#d5d1cb" opacity="0" transform="rotate(-6,39,52)"/>
+                    <rect id="br-p3" x="7"  y="7"  width="58" height="84" rx="4" fill="#dedad5" opacity="0" transform="rotate(-3,36,49)"/>
+                    <rect id="br-p2" x="4"  y="4"  width="58" height="84" rx="4" fill="#e8e5e0" opacity="0" transform="rotate(-1,33,46)"/>
+                    <rect id="br-p1" x="2"  y="2"  width="58" height="84" rx="4" fill="#ffffff" opacity="0"/>
+                    <rect id="br-l1" x="12" y="18" width="38" height="4" rx="2" fill="#dedbd6" opacity="0"/>
+                    <rect id="br-l2" x="12" y="26" width="46" height="4" rx="2" fill="#dedbd6" opacity="0"/>
+                    <rect id="br-l3" x="12" y="34" width="32" height="4" rx="2" fill="#dedbd6" opacity="0"/>
                 </svg>
-            </article>
-            <article class="capability-card capability-card--rail">
-                <span class="rail-step">02</span>
-                <span class="mono-label">Retrieve</span>
-                <h3 class="heading-card">Semantic search</h3>
-                <p class="body">Queries are embedded with the same model and matched against the closest passages in your corpus.</p>
-                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
-                    <circle cx="28" cy="28" r="14"/>
-                    <path d="M38 38l14 14"/>
-                    <circle cx="28" cy="28" r="3" fill="currentColor"/>
-                </svg>
-            </article>
-            <article class="capability-card capability-card--rail">
-                <span class="rail-step">03</span>
-                <span class="mono-label">Answer</span>
-                <h3 class="heading-card">Grounded responses</h3>
-                <p class="body">Top chunks are passed to the chat model with citations, so every answer is traceable to a source.</p>
-                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
-                    <path d="M10 16h44v28a4 4 0 0 1-4 4H26l-10 8v-8h-2a4 4 0 0 1-4-4z"/>
-                    <path d="M22 28h20M22 36h12"/>
-                </svg>
-            </article>
+                <div style="padding-bottom:2px;">
+                    <div id="br-count" style="font-size:40px;font-weight:700;letter-spacing:-0.06em;line-height:1;opacity:0;color:#17171c;">0</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.4;margin-top:2px;">papers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Cell 3 · Extract — warm, narrow left, short ── -->
+        <div class="bento-cell bento-cell-3" id="bento-extract">
+            <p class="bento-step">03 &middot; Extract</p>
+            <h3 class="bento-title">Separates signal from noise</h3>
+            <svg width="100%" height="72" viewBox="0 0 220 72" preserveAspectRatio="xMinYMid meet" aria-hidden="true" style="margin-top:auto; max-width:240px;">
+                <rect x="0"   y="1"  width="185" height="6" rx="3" fill="#f5ded2"/>
+                <rect x="0"   y="14" width="145" height="6" rx="3" fill="#f5ded2"/>
+                <rect x="0"   y="27" width="170" height="6" rx="3" fill="#f5ded2"/>
+                <rect x="0"   y="40" width="120" height="6" rx="3" fill="#f5ded2"/>
+                <rect x="0"   y="53" width="158" height="6" rx="3" fill="#f5ded2"/>
+                <rect x="0"   y="66" width="100" height="6" rx="3" fill="#f5ded2"/>
+                <rect id="be-h1" x="30"  y="-1"  width="70" height="8" rx="4" fill="#ff7759" opacity="0"/>
+                <rect id="be-h2" x="60"  y="25"  width="58" height="8" rx="4" fill="#ff7759" opacity="0"/>
+                <rect id="be-h3" x="10"  y="51"  width="76" height="8" rx="4" fill="#ff7759" opacity="0"/>
+                <rect id="be-scan" x="0" y="-2" width="220" height="3" rx="1.5" fill="rgba(255,119,89,0.55)" opacity="0"/>
+            </svg>
+        </div>
+
+        <!-- ── Cell 4 · Brief — dark, wide right, short ── -->
+        <div class="bento-cell bento-cell-4" id="bento-brief">
+            <p class="bento-step">04 &middot; Brief</p>
+            <h3 class="bento-title">Structured briefing — every claim cited</h3>
+            <p class="bento-desc">Executive summary, novelty analysis, and technique breakdowns. A full citation table traces every claim back to its source paper.</p>
+
+            <svg class="bento-visual-abs" width="190" height="106" viewBox="0 0 190 106" aria-hidden="true">
+                <rect id="bb-doc" x="6" y="4" width="142" height="98" rx="6" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" opacity="0"/>
+                <rect id="bb-sh1" x="16" y="14" width="52" height="5" rx="2.5" fill="rgba(255,255,255,0.52)" opacity="0"/>
+                <rect id="bb-sh2" x="16" y="41" width="62" height="5" rx="2.5" fill="rgba(255,255,255,0.52)" opacity="0"/>
+                <rect id="bb-sh3" x="16" y="68" width="46" height="5" rx="2.5" fill="rgba(255,255,255,0.52)" opacity="0"/>
+                <rect id="bb-b1" x="16" y="23" width="110" height="3" rx="1.5" fill="rgba(255,255,255,0.13)" opacity="0"/>
+                <rect id="bb-b2" x="16" y="29" width="84"  height="3" rx="1.5" fill="rgba(255,255,255,0.13)" opacity="0"/>
+                <rect id="bb-b3" x="16" y="50" width="114" height="3" rx="1.5" fill="rgba(255,255,255,0.13)" opacity="0"/>
+                <rect id="bb-b4" x="16" y="56" width="72"  height="3" rx="1.5" fill="rgba(255,255,255,0.13)" opacity="0"/>
+                <rect id="bb-b5" x="16" y="77" width="102" height="3" rx="1.5" fill="rgba(255,255,255,0.13)" opacity="0"/>
+                <rect id="bb-c1" x="16"  y="89" width="28" height="8" rx="4" fill="rgba(255,119,89,0.38)" opacity="0"/>
+                <rect id="bb-c2" x="48"  y="89" width="28" height="8" rx="4" fill="rgba(255,119,89,0.38)" opacity="0"/>
+                <rect id="bb-c3" x="80"  y="89" width="28" height="8" rx="4" fill="rgba(255,119,89,0.38)" opacity="0"/>
+                <rect id="bb-c4" x="112" y="89" width="24" height="8" rx="4" fill="rgba(255,119,89,0.38)" opacity="0"/>
+            </svg>
+        </div>
+
+    </div>
+
+    <div style="margin-top: 48px;">
+        <a href="/briefing" class="btn-primary">
+            Research your own topic
+            <span class="btn-arrow" aria-hidden="true">↗</span>
+        </a>
+    </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SAMPLE OUTPUT — what a briefing actually looks like
+     ============================================================ -->
+<style>
+.sample-output {
+    border-radius: 18px;
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+    background: var(--canvas);
+}
+.sample-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 28px 32px 24px;
+    border-bottom: 1px solid var(--hairline);
+    background: var(--soft-stone);
+    gap: 24px;
+}
+.sample-output-topic {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: 4px 0 0;
+    color: var(--ink);
+}
+.sample-output-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.sample-output-stat {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    white-space: nowrap;
+}
+.sample-output-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+.sample-output-section {
+    padding: 28px 32px;
+    border-right: 1px solid var(--hairline);
+}
+.sample-output-section:last-child {
+    border-right: 0;
+}
+.sample-output-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate);
+    display: block;
+    margin-bottom: 12px;
+}
+.sample-output-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+.sample-output-findings {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.sample-output-findings li {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    padding-left: 16px;
+    position: relative;
+}
+.sample-output-findings li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--coral);
+    font-weight: 600;
+}
+.sample-output-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 32px;
+    border-top: 1px solid var(--hairline);
+    flex-wrap: wrap;
+}
+.sample-cite-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 8px;
+    border-radius: 99px;
+    background: var(--soft-stone);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--slate);
+}
+.sample-cite-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--coral);
+    flex-shrink: 0;
+}
+@media (max-width: 720px) {
+    .sample-output-body { grid-template-columns: 1fr; }
+    .sample-output-section { border-right: 0; border-bottom: 1px solid var(--hairline); }
+    .sample-output-section:last-child { border-bottom: 0; }
+    .sample-output-header { flex-direction: column; gap: 12px; }
+    .sample-output-stats { align-items: flex-start; flex-direction: row; gap: 16px; }
+}
+</style>
+
+<section data-reveal>
+    <div class="container">
+        <div class="rail-head" style="margin-bottom: 40px;">
+            <span class="eyebrow">Sample output</span>
+            <h2 class="heading-section" style="max-width: 22ch;">This is what you actually get.</h2>
+        </div>
+
+        <div class="sample-output">
+
+            <div class="sample-output-header">
+                <div>
+                    <span class="mono-label" style="display:block; margin-bottom:4px;">Topic</span>
+                    <h3 class="sample-output-topic">Retrieval augmented generation</h3>
+                </div>
+                <div class="sample-output-stats">
+                    <span class="sample-output-stat">14 papers reviewed</span>
+                    <span class="sample-output-stat">3 min 52 sec</span>
+                </div>
+            </div>
+
+            <div class="sample-output-body">
+                <div class="sample-output-section">
+                    <span class="sample-output-label">Executive summary</span>
+                    <p class="sample-output-text">RAG architectures have matured into production-grade systems that reliably ground language model outputs in verified external sources. The dominant shift is from sparse (BM25) retrieval to dense embeddings, with hybrid reranking closing the gap on long-tail queries. Retrieval-augmented models now demonstrate 40–60% lower hallucination rates vs. closed-book baselines across six standard benchmarks.</p>
+                </div>
+                <div class="sample-output-section">
+                    <span class="sample-output-label">Key findings</span>
+                    <ul class="sample-output-findings">
+                        <li>Dense retrieval outperforms sparse on most open-domain QA benchmarks when fine-tuned on task-specific data, with DPR showing 15pp gains over BM25 on NaturalQuestions.</li>
+                        <li>Hybrid reranking — combining semantic and lexical signals — reduces error rate on long-tail queries by 18% versus dense-only pipelines.</li>
+                        <li>Sub-50ms retrieval latency at billion-document scale is now demonstrated using HNSW indexing, removing the last practical barrier to real-time RAG.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sample-output-footer">
+                <span class="sample-cite-chip"><span class="sample-cite-dot"></span>Lewis et al. &middot; NeurIPS 2024</span>
+                <span class="sample-cite-chip"><span class="sample-cite-dot"></span>Karpukhin et al. &middot; EMNLP 2024</span>
+                <span class="sample-cite-chip"><span class="sample-cite-dot"></span>Shi et al. &middot; ICLR 2024</span>
+                <span class="sample-cite-chip"><span class="sample-cite-dot"></span>+11 more papers</span>
+            </div>
+
         </div>
     </div>
 </section>
 
 <!-- ============================================================
-     DARK FEATURE BAND — live collection status
+     CORAL MARQUEE — diagonal ribbon
      ============================================================ -->
-<section class="container">
-    <div class="dark-feature dark-feature--rich" data-reveal>
-        <div class="dark-feature-copy">
-            <span class="eyebrow">Collection status</span>
-            <h3 class="heading-card">Your workspace, in numbers.</h3>
-            <p class="body">Connected to ChromaDB. Reading collection metrics in real time.</p>
-            <div class="health-row">
-                <span class="health-pill" id="health-pill">
-                    <span class="status-dot status-dot--live"></span>
-                    checking…
-                </span>
-                <a href="/api/v1/health" class="btn-secondary" style="color:#ffffff;">Open raw response &rarr;</a>
-            </div>
-        </div>
-        <div class="stat-block">
-            <div class="stat">
-                <span class="stat-value" id="stat-docs">0</span>
-                <span class="stat-label">Documents</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value" id="stat-chunks">0</span>
-                <span class="stat-label">Chunks</span>
-            </div>
-        </div>
+<style>
+.marquee-wrap {
+    position: relative;
+    height: 120px;
+    z-index: 999;
+}
+.marquee-wrap .marquee {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(-5deg);
+    z-index: 999;
+}
+</style>
 
-        <!-- Floating accent -->
-        <svg class="dark-feature-accent" viewBox="0 0 600 600" aria-hidden="true">
-            <defs>
-                <radialGradient id="dfg" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#ff7759" stop-opacity="0.18"/>
-                    <stop offset="100%" stop-color="#003c33" stop-opacity="0"/>
-                </radialGradient>
-            </defs>
-            <circle cx="300" cy="300" r="300" fill="url(#dfg)"/>
-        </svg>
-    </div>
-</section>
-
-<!-- ============================================================
-     CORAL MARQUEE
-     ============================================================ -->
-<section class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-        <span>AI moves fast</span><span class="dot">●</span>
-        <span>papermind</span><span class="dot">●</span>
-        <span>retrieve · reason · answer</span><span class="dot">●</span>
-        <span>AI moves fast</span><span class="dot">●</span>
-        <span>papermind</span><span class="dot">●</span>
-        <span>retrieve · reason · answer</span><span class="dot">●</span>
-        <span>AI moves fast</span><span class="dot">●</span>
-        <span>papermind</span><span class="dot">●</span>
-        <span>retrieve · reason · answer</span><span class="dot">●</span>
-    </div>
-</section>
+<div class="marquee-wrap" aria-hidden="true">
+    <section class="marquee">
+        <div class="marquee-track">
+            <span>Read more papers</span><span class="dot">●</span>
+            <span>papermind</span><span class="dot">●</span>
+            <span>plan · read · brief</span><span class="dot">●</span>
+            <span>Read more papers</span><span class="dot">●</span>
+            <span>papermind</span><span class="dot">●</span>
+            <span>plan · read · brief</span><span class="dot">●</span>
+            <span>Read more papers</span><span class="dot">●</span>
+            <span>papermind</span><span class="dot">●</span>
+            <span>plan · read · brief</span><span class="dot">●</span>
+        </div>
+    </section>
+</div>
 
 <!-- ============================================================
      GSAP + page choreography
@@ -352,43 +596,6 @@
         });
     });
 
-    /* ----- Health / stats counter ----- */
-    function animateCounter(el, to) {
-        var obj = { v: 0 };
-        gsap.to(obj, {
-            v: to, duration: 1.4, ease: 'power2.out',
-            onUpdate: function () { el.textContent = Math.round(obj.v).toLocaleString(); }
-        });
-    }
-
-    var healthPill = document.getElementById('health-pill');
-    var statDocs = document.getElementById('stat-docs');
-    var statChunks = document.getElementById('stat-chunks');
-
-    ScrollTrigger.create({
-        trigger: '.dark-feature--rich',
-        start: 'top 80%',
-        once: true,
-        onEnter: function () {
-            fetch('/api/v1/health').then(function (r) { return r.json(); }).then(function (data) {
-                var docs = (data && (data.documents || data.doc_count)) || 0;
-                var chunks = (data && (data.chunks || data.chunk_count || data.collection_count)) || 0;
-                if (statDocs) animateCounter(statDocs, docs);
-                if (statChunks) animateCounter(statChunks, chunks);
-                if (healthPill) {
-                    healthPill.innerHTML = '<span class="status-dot status-dot--live"></span>' +
-                        ((data && data.status) ? data.status : 'online');
-                }
-            }).catch(function () {
-                if (statDocs) animateCounter(statDocs, 0);
-                if (statChunks) animateCounter(statChunks, 0);
-                if (healthPill) {
-                    healthPill.innerHTML = '<span class="status-dot status-dot--live"></span>offline';
-                }
-            });
-        }
-    });
-
     /* ----- Marquee (GSAP infinite slide) ----- */
     var marqueeTrack = document.querySelector('.marquee-track');
     if (marqueeTrack) {
@@ -422,11 +629,94 @@
         });
     }
 
-    /* ----- '/' to focus search ----- */
-    document.addEventListener('keydown', function (e) {
-        if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-            var input = document.querySelector('input[name="q"]');
-            if (input) { e.preventDefault(); input.focus(); }
+})();
+</script>
+
+<!-- ── Bento grid micro-interactions ─────────────────────── -->
+<script>
+(function () {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+    /* Cell 1 · Plan — branch tree draws in from the root */
+    ScrollTrigger.create({
+        trigger: '#bento-plan', start: 'top 84%', once: true,
+        onEnter: function () {
+            var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            // root node pops in
+            tl.from('#bp-root', { scale: 0, transformOrigin: '26px 74px', duration: 0.4 });
+            // primary branches draw
+            tl.to(['#bp-l1','#bp-l2','#bp-l3'], { strokeDashoffset: 0, duration: 0.55, stagger: 0.13 }, '-=0.05');
+            // mid nodes appear
+            tl.to(['#bp-m1','#bp-m2','#bp-m3'], { opacity: 1, duration: 0.28, stagger: 0.1 }, '-=0.3');
+            // secondary branches
+            tl.to(['#bp-s1','#bp-s2','#bp-s3','#bp-s4','#bp-s5','#bp-s6'],
+                { strokeDashoffset: 0, duration: 0.4, stagger: 0.07 }, '-=0.2');
+            // leaf nodes
+            tl.to(['#bp-f1','#bp-f2','#bp-f3','#bp-f4','#bp-f5','#bp-f6'],
+                { opacity: 1, duration: 0.25, stagger: 0.06 }, '-=0.2');
+            // idle: root breathes
+            gsap.to('#bp-root', {
+                scale: 1.3, transformOrigin: '26px 74px',
+                duration: 1.4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.4
+            });
+        }
+    });
+
+    /* Cell 2 · Read — papers stack up, counter ticks to 20 */
+    ScrollTrigger.create({
+        trigger: '#bento-read', start: 'top 84%', once: true,
+        onEnter: function () {
+            var tl = gsap.timeline({ defaults: { ease: 'back.out(1.3)' } });
+            tl.to(['#br-p4','#br-p3','#br-p2','#br-p1'],
+                { opacity: 1, duration: 0.35, stagger: 0.09 }, 0);
+            tl.to(['#br-l1','#br-l2','#br-l3'],
+                { opacity: 1, duration: 0.2, stagger: 0.07 }, 0.45);
+            // counter fades in then ticks
+            tl.to('#br-count', { opacity: 1, duration: 0.2 }, 0.5);
+            var obj = { v: 0 };
+            tl.to(obj, {
+                v: 20, duration: 1.8, ease: 'power2.out',
+                onUpdate: function () {
+                    var el = document.getElementById('br-count');
+                    if (el) el.textContent = Math.round(obj.v);
+                }
+            }, 0.6);
+        }
+    });
+
+    /* Cell 3 · Extract — scan bar sweeps, findings light up */
+    ScrollTrigger.create({
+        trigger: '#bento-extract', start: 'top 84%', once: true,
+        onEnter: function () {
+            var tl = gsap.timeline();
+            tl.to('#be-scan', { opacity: 1, duration: 0.12 });
+            tl.to('#be-scan', { y: 74, duration: 1.9, ease: 'power1.inOut' });
+            tl.to('#be-scan', { opacity: 0, duration: 0.2 }, '-=0.25');
+            // highlights pop as the bar passes
+            tl.to('#be-h1', { opacity: 0.45, duration: 0.28, ease: 'power2.out' }, 0.3);
+            tl.to('#be-h2', { opacity: 0.45, duration: 0.28, ease: 'power2.out' }, 0.82);
+            tl.to('#be-h3', { opacity: 0.45, duration: 0.28, ease: 'power2.out' }, 1.42);
+            // idle: highlights breathe
+            gsap.to(['#be-h1','#be-h2','#be-h3'], {
+                opacity: 0.65, duration: 1.5, repeat: -1, yoyo: true,
+                ease: 'sine.inOut', stagger: 0.38, delay: 2.4
+            });
+        }
+    });
+
+    /* Cell 4 · Brief — doc outline, sections, body lines, then citation chips */
+    ScrollTrigger.create({
+        trigger: '#bento-brief', start: 'top 84%', once: true,
+        onEnter: function () {
+            var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            tl.to('#bb-doc', { opacity: 1, duration: 0.45 });
+            tl.fromTo(['#bb-sh1','#bb-sh2','#bb-sh3'],
+                { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.18 }, 0.25);
+            tl.to(['#bb-b1','#bb-b2','#bb-b3','#bb-b4','#bb-b5'],
+                { opacity: 1, duration: 0.2, stagger: 0.09 }, 0.45);
+            tl.fromTo(['#bb-c1','#bb-c2','#bb-c3','#bb-c4'],
+                { opacity: 0, scale: 0, transformOrigin: 'left center' },
+                { opacity: 1, scale: 1, duration: 0.32, stagger: 0.1, ease: 'back.out(2)' }, 1.1);
         }
     });
 })();

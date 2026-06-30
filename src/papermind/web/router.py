@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 
 from fastapi import APIRouter, Form, Request
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from papermind.agent.graph import compiled_graph
@@ -59,13 +60,13 @@ async def home(request: Request):
 
 
 @router.get("/homev2")
-async def home_v2(request: Request):
-    return templates.TemplateResponse(request, "homev2.html")
+async def home_v2():
+    return RedirectResponse(url="/", status_code=301)
 
 
 @router.get("/upload-document")
-async def docs(request: Request):
-    return templates.TemplateResponse(request, "upload-documents.html")
+async def upload_document():
+    return RedirectResponse(url="/", status_code=301)
 
 
 @router.get("/briefing")

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Papermind{% endblock %}</title>
-    <meta name="description" content="Papermind — a RAG-powered document Q&A workspace.">
+    <meta name="description" content="Papermind — an autonomous research agent that reads recent academic papers and returns structured briefings with citations.">
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg">
@@ -22,12 +22,6 @@
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 </head>
 <body>
-    {% block announcement %}
-    <div class="announcement-bar" role="region" aria-label="Site announcement">
-        <span>Papermind 0.1 — early preview.</span>
-        <a href="/docs" target="_blank" rel="noopener">Learn more</a>
-    </div>
-    {% endblock %}
 
     <nav class="site-nav" aria-label="Primary">
         <div class="nav-inner">
@@ -38,8 +32,8 @@
                 <li><a href="/briefing">Briefings</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="/upload-document" class="btn-primary">
-                    Upload a document
+                <a href="/briefing" class="btn-primary">
+                    Start a briefing
                 </a>
             </div>
         </div>
@@ -56,9 +50,9 @@
             <section class="footer-cta-card" aria-labelledby="footer-cta-heading">
                 <span class="footer-cta-glow" aria-hidden="true"></span>
                 <div class="footer-cta-content">
-                    <h2 id="footer-cta-heading" class="footer-cta-heading">Ready to ask your documents&nbsp;anything?</h2>
-                    <p class="footer-cta-lede">Upload PDFs, text, and markdown — and start querying your own knowledge in minutes.</p>
-                    <a href="/upload-document" class="btn-primary btn-primary--invert footer-cta-btn">Get started</a>
+                    <h2 id="footer-cta-heading" class="footer-cta-heading">Ready to research your next&nbsp;topic?</h2>
+                    <p class="footer-cta-lede">Enter a topic and get a structured briefing pulled from recent academic papers, with full citations — in about 5 minutes.</p>
+                    <a href="/briefing" class="btn-primary btn-primary--invert footer-cta-btn">Start a briefing</a>
                 </div>
             </section>
 
@@ -71,69 +65,21 @@
                             <span>Papermind</span>
                         </a>
                         <p class="footer-card-tagline">
-                            A RAG-powered document workspace. Upload, retrieve, and reason over your own files with natural language.
+                            An autonomous research agent. Give it a topic — it reads recent academic papers and returns a structured briefing with citations.
                         </p>
-                        <ul class="footer-socials" aria-label="Social links">
-                            <li>
-                                <a href="https://x.com" target="_blank" rel="noopener" aria-label="X (Twitter)">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                                        <path d="M18.244 2H21.5l-7.61 8.69L23 22h-7.06l-5.52-7.21L4.1 22H.84l8.13-9.29L1 2h7.23l4.99 6.6L18.244 2Zm-1.24 18h1.95L7.06 4H5L17.004 20Z"/>
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                                        <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.94c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.71 1.26 3.37.96.11-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.71 0-1.26.45-2.29 1.19-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.44-2.7 5.42-5.27 5.7.41.36.78 1.06.78 2.14v3.17c0 .3.21.67.79.55C20.21 21.38 23.5 17.07 23.5 12 23.5 5.65 18.35.5 12 .5Z"/>
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                                        <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.78C.8 0 0 .78 0 1.74v20.52C0 23.22.8 24 1.78 24h20.44c.98 0 1.78-.78 1.78-1.74V1.74C24 .78 23.2 0 22.22 0Z"/>
-                                    </svg>
-                                </a>
-                            </li>
-                        </ul>
                     </div>
 
                     <nav class="footer-card-col" aria-label="Product">
                         <h4>Product</h4>
                         <ul>
-                            <li><a href="/">Search</a></li>
-                            <li><a href="/upload-document">Upload</a></li>
+                            <li><a href="/briefing">Briefings</a></li>
                             <li><a href="/docs" target="_blank" rel="noopener">API reference</a></li>
-                            <li><a href="/api/v1/health">Health</a></li>
-                        </ul>
-                    </nav>
-
-                    <nav class="footer-card-col" aria-label="Resources">
-                        <h4>Resources</h4>
-                        <ul>
-                            <li><a href="/docs" target="_blank" rel="noopener">Interactive docs</a></li>
-                            <li><a href="/docs#tag/Documents" target="_blank" rel="noopener">Ingestion guide</a></li>
-                            <li><a href="/docs#tag/Query" target="_blank" rel="noopener">Query reference</a></li>
-                        </ul>
-                    </nav>
-
-                    <nav class="footer-card-col" aria-label="Company">
-                        <h4>Company</h4>
-                        <ul>
-                            <li><a href="https://github.com" target="_blank" rel="noopener">Source</a></li>
-                            <li><a href="#">Changelog</a></li>
-                            <li><a href="#">Contact</a></li>
                         </ul>
                     </nav>
                 </div>
 
                 <div class="footer-card-bottom">
                     <span>&copy; {% block year %}2026{% endblock %} Papermind. All rights reserved.</span>
-                    <div class="footer-legal">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Cookie Settings</a>
-                    </div>
                 </div>
             </section>
         </div>
