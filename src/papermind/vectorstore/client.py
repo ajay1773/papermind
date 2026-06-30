@@ -50,7 +50,9 @@ def _get_openai() -> AsyncOpenAI:
 def _get_bm25() -> SparseTextEmbedding:
     global _bm25_model
     if _bm25_model is None:
-        _bm25_model = SparseTextEmbedding(model_name="Qdrant/bm25")
+        import os
+        cache_dir = os.environ.get("FASTEMBED_CACHE_PATH", os.path.join(settings.data_dir, "fastembed_cache"))
+        _bm25_model = SparseTextEmbedding(model_name="Qdrant/bm25", cache_dir=cache_dir)
     return _bm25_model
 
 
