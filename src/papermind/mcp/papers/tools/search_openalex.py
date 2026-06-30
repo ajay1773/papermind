@@ -132,26 +132,44 @@ def register(mcp: FastMCP) -> None:
         elif quoted_phrases:
             title_filter = f",title.search:{quoted_phrases[0]}"
 
+        # OR logic: paper needs any one of the concept IDs, not all of them
         concept_filter = ""
         if concept_ids:
-            concept_filter = "," + ",".join(f"concepts.id:{cid}" for cid in concept_ids[:2])
+            concept_filter = ",concepts.id:" + "|".join(concept_ids[:3])
 
-        params = {
-            "search": query,
-            "filter": f"from_publication_date:{from_date},type:article{concept_filter}{title_filter}",
-            "sort": "relevance_score:desc",
-            "per_page": min(max_results, 25),
-            "select": "id,title,publication_year,cited_by_count,open_access,primary_location,abstract_inverted_index,open_access,best_oa_location,authorships,concepts,publication_date,doi",
-            "mailto": MAILTO,
-        }
-        logger.info("search_papers_openalex called | query=%r days_back=%d max_results=%d", query, days_back, max_results)
-        logger.info("OpenAlex request | url=%s/works params=%s", OPENALEX_BASE, params)
-        try:
+        def _run_search(extra_filters: str) -> list[dict]:
+            params = {
+                "search": query,
+                "filter": f"from_publication_date:{from_date},type:article{extra_filters}",
+                "sort": "relevance_score:desc",
+                "per_page": min(max_results, 25),
+                "select": "id,title,publication_year,cited_by_count,open_access,primary_location,abstract_inverted_index,open_access,best_oa_location,authorships,concepts,publication_date,doi",
+                "mailto": MAILTO,
+            }
+            logger.info("OpenAlex request | url=%s/works params=%s", OPENALEX_BASE, params)
             with httpx.Client(timeout=15) as client:
                 resp = client.get(f"{OPENALEX_BASE}/works", params=params)
                 resp.raise_for_status()
-            results = resp.json().get("results", [])
+            return resp.json().get("results", [])
+
+        logger.info("search_papers_openalex called | query=%r days_back=%d max_results=%d", query, days_back, max_results)
+        try:
+            # Attempt 1: full filters (concept OR + title)
+            results = _run_search(f"{concept_filter}{title_filter}")
             logger.info("OpenAlex response | %d results returned", len(results))
+
+            # Attempt 2: drop title filter if too restrictive
+            if not results and title_filter:
+                logger.info("OpenAlex: 0 results with title filter, retrying without it")
+                results = _run_search(concept_filter)
+                logger.info("OpenAlex response (no title filter) | %d results returned", len(results))
+
+            # Attempt 3: drop concept filter too — pure text search
+            if not results and concept_filter:
+                logger.info("OpenAlex: 0 results with concept filter, retrying with text search only")
+                results = _run_search("")
+                logger.info("OpenAlex response (text only) | %d results returned", len(results))
+
             return [_parse_work(w) for w in results]
         except Exception as e:
             logger.error("OpenAlex request failed | %s", e)
