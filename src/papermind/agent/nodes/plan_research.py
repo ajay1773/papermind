@@ -19,11 +19,7 @@ class PlanResearchLLMOutput(BaseModel):
         description="Research plan sub questions"
     )
     suggested_query: str = Field(
-        description="A single OpenAlex search query. One quoted core concept + 1-2 domain keywords. Example: \"large language models\" evaluation benchmark"
-    )
-    concept_ids: list[str] = Field(
-        default_factory=list,
-        description="1-2 OpenAlex concept IDs to restrict domain. E.g. ['C41008148', 'C11413529'] for CS + NLP topics."
+        description="A single OpenAlex search query. One quoted core concept + 1-2 context keywords. Example: \"large language models\" evaluation benchmark"
     )
     date_range_days: int = Field(
         description="Number of days back to search. Max 730 (2 years)."
@@ -62,7 +58,7 @@ async def plan_research(state: PaperMindState) -> PaperMindState:
         "research_plan": response.research_plan,
         "research_questions": response.research_questions,
         "suggested_query": response.suggested_query,
-        "concept_ids": response.concept_ids,
+        "concept_ids": [],
         "date_range_days": response.date_range_days,
         "target_paper_count": response.target_paper_count,
         "errors": errors,
