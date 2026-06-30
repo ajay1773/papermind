@@ -1,0 +1,20 @@
+{% if query and chunks %}
+<div class="results" role="region" aria-label="Search results">
+    <div class="results-meta">
+        <span class="count">{{ chunks | length }} result{{ "s" if chunks | length != 1 }}</span>
+        <span class="query-echo">for <strong>&ldquo;{{ query }}&rdquo;</strong></span>
+    </div>
+    {% for chunk in chunks %}
+    <article class="result-row">
+        <span class="source-chip" title="{{ chunk.source }}">{{ chunk.source }}</span>
+        <p class="result-body">{{ chunk.text }}</p>
+        <span class="result-score">Score {{ "%.3f" | format(1 - chunk.distance) }}</span>
+    </article>
+    {% endfor %}
+</div>
+{% elif query %}
+<div class="results-empty">
+    <p>No results for <strong>&ldquo;{{ query }}&rdquo;</strong>.</p>
+    <p style="margin-top:8px;">Try <a href="/upload-document" class="btn-secondary" style="display:inline;">uploading a document</a> first.</p>
+</div>
+{% endif %}

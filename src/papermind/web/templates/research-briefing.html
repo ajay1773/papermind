@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Papermind — Research Briefings{% endblock %}
+
+{% block content %}
+
+{# ── Page header ──────────────────────────────────────────── #}
+<section class="section--tight">
+    <div class="container">
+        <span class="eyebrow">Autonomous Research Agent</span>
+        <h1 class="display-product" style="margin: 12px 0 16px; max-width: 22ch;">
+            Technical briefings on any AI/ML topic.
+        </h1>
+        <p class="lede" style="margin-bottom: 40px;">
+            Give it a topic. It reads recent arXiv papers, extracts what's genuinely new,
+            translates benchmarks into plain English, and returns a structured briefing with
+            citations — so you can decide in 10 minutes if it's worth your attention.
+        </p>
+
+        {# ── Briefing composer ─────────────────────────────── #}
+        <div class="briefing-glow">
+        <form class="briefing-composer"
+              hx-post="/briefing"
+              hx-target="#briefing-output"
+              hx-swap="innerHTML"
+              hx-indicator="#briefing-spinner"
+              autocomplete="off">
+
+            <div class="briefing-composer-head">
+                <div class="agent-identity">
+                    <span class="agent-avatar">P</span>
+                    <span class="agent-title">Papermind Research Agent</span>
+                </div>
+            </div>
+
+            <div class="agent-chips">
+                <span class="agent-chip">Ready</span>
+                <span class="agent-chip">OpenAlex</span>
+                <span class="agent-chip">MCP</span>
+            </div>
+
+            <div class="briefing-input-wrap">
+                <input
+                    type="text"
+                    name="topic"
+                    id="topic-input"
+                    placeholder="e.g. retrieval augmented generation, LLM evaluation methods…"
+                    aria-label="Research topic"
+                    required
+                >
+                <button type="submit" class="input-run-btn">
+                    <span id="briefing-spinner" class="briefing-spinner htmx-indicator">Running…</span>
+                    <span class="input-run-label">Run →</span>
+                </button>
+            </div>
+            <p id="topic-hint" class="topic-hint" aria-live="polite"></p>
+
+        </form>
+        </div>
+    </div>
+</section>
+
+{# ── Output area — HTMX replaces this when agent runs ──────── #}
+<div id="briefing-output">
+
+    {# ── Empty state: "what you'll get" ───────────────────── #}
+    <section class="section--tight">
+        <div class="container">
+        <div class="preview-grid">
+            <article class="preview-card">
+                <span class="preview-num">01 &middot; Plan</span>
+                <h3 class="preview-title">Research strategy</h3>
+                <p class="preview-body">The agent decomposes your topic into search queries, selects date ranges, and ranks papers by relevance before reading.</p>
+            </article>
+            <article class="preview-card">
+                <span class="preview-num">02 &middot; Read</span>
+                <h3 class="preview-title">Paper synthesis</h3>
+                <p class="preview-body">Up to 20 recent arXiv papers are read. The agent separates genuinely new contributions from incremental extensions of prior work.</p>
+            </article>
+            <article class="preview-card">
+                <span class="preview-num">03 &middot; Brief</span>
+                <h3 class="preview-title">Structured output</h3>
+                <p class="preview-body">A technical briefing with executive summary, novelty analysis, technique breakdowns, benchmarks in plain English, and full citations.</p>
+            </article>
+        </div>
+        </div>
+    </section>
+
+</div>{# end #briefing-output #}
+
+<script>
+    const topicInput = document.getElementById('topic-input');
+    const topicHint  = document.getElementById('topic-hint');
+
+    topicInput?.focus();
+
+    topicInput?.addEventListener('input', () => {
+        const val = topicInput.value.trim();
+        const looksLikeAbbreviation = val.length > 0 && val.length <= 6 && val === val.toUpperCase();
+        topicHint.textContent = looksLikeAbbreviation
+            ? 'Looks like an abbreviation — try the full term for better results, e.g. "Small Language Models" instead of "SLM".'
+            : '';
+    });
+</script>
+
+{% endblock %}

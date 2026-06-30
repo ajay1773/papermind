@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+
+{% block title %}Papermind — Ask your documents anything{% endblock %}
+
+{% block content %}
+<div class="cursor-blob" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><span></span></div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero hero--composed">
+    <div class="container hero-copy">
+        <img src="/static/images/logo.svg" alt="" aria-hidden="true" class="hero-mark fade-up">
+        <span class="eyebrow reveal-mask"><span>Retrieval &middot; Reasoning &middot; Answers</span></span>
+        <h1 class="display-hero split-words">Ask your documents anything.</h1>
+        <p class="lede fade-up">Upload PDFs, text, and markdown — then search across them with natural language. Built on embeddings, grounded in your own files.</p>
+        <div class="hero-actions fade-up">
+            <a href="/upload-document" class="btn-primary">
+                Upload a document
+                <span class="btn-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a href="/docs" target="_blank" rel="noopener" class="btn-secondary">Read the API docs &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Hero composition: agent console + photo card -->
+    <div class="container hero-composition">
+        <article class="hero-photo-card agent-console" aria-label="Papermind retrieval agent preview">
+            <header class="console-head">
+                <span class="agent-name">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    Papermind &middot; retrieval agent
+                </span>
+                <span class="console-meta mono-label">live &middot; 2 sources</span>
+            </header>
+
+            <div class="console-body">
+                <div class="console-line">
+                    <span class="console-tag">ASK</span>
+                    <p class="console-prompt" data-typewriter>What does our refund policy say about international orders?</p>
+                </div>
+
+                <div class="console-line console-answer">
+                    <span class="console-tag console-tag--coral">ANSWER</span>
+                    <p class="console-response">
+                        <span class="stream-chunk">Refunds for international orders</span>
+                        <span class="stream-chunk"> are processed within 30 business days</span>
+                        <span class="stream-chunk"> of return receipt, net of original shipping.</span>
+                    </p>
+                </div>
+
+                <footer class="console-citations" aria-label="Sources">
+                    <span class="citation-chip">
+                        <span class="cite-dot" aria-hidden="true"></span>
+                        refund-policy.pdf &middot; <span class="cite-page">p.&nbsp;4</span>
+                    </span>
+                    <span class="citation-chip">
+                        <span class="cite-dot" aria-hidden="true"></span>
+                        international-shipping.md
+                    </span>
+                </footer>
+            </div>
+        </article>
+
+        <aside class="hero-photo-card photo-card" aria-hidden="true">
+            <div class="photo-card-inner">
+                <svg viewBox="0 0 320 420" class="photo-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                        <radialGradient id="grad" cx="30%" cy="30%" r="80%">
+                            <stop offset="0%" stop-color="#edfce9"/>
+                            <stop offset="55%" stop-color="#f1f5ff"/>
+                            <stop offset="100%" stop-color="#eeece7"/>
+                        </radialGradient>
+                    </defs>
+                    <rect width="320" height="420" fill="url(#grad)"/>
+                    <g class="photo-orbit" transform="translate(280 100)">
+                        <circle cx="0" cy="0" r="100" fill="none" stroke="#003c33" stroke-width="1.25" stroke-opacity="0.4"/>
+                        <circle cx="0" cy="0" r="66" fill="none" stroke="#17171c" stroke-width="1.25" stroke-opacity="0.55"/>
+                        <circle cx="0" cy="0" r="34" fill="#17171c"/>
+                        <circle cx="0" cy="-100" r="7" fill="#ff7759"/>
+                        <circle cx="100" cy="0" r="5" fill="#003c33"/>
+                        <circle cx="-66" cy="0" r="4" fill="#1863dc"/>
+                        <circle cx="0" cy="66" r="3.5" fill="#17171c"/>
+                    </g>
+                </svg>
+                <div class="photo-overlay">
+                    <span class="mono-label" style="color:#ffffff; opacity:.8;">02 &middot; Embedding</span>
+                    <p class="photo-caption">A vector for every passage. A path for every question.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<!-- ============================================================
+     TRUST LOGO STRIP
+     ============================================================ -->
+<section class="trust-strip">
+    <div class="container">
+        <p class="trust-copy mono-label">Built for teams running on their own knowledge</p>
+        <div class="trust-logos" role="list">
+            <span class="trust-logo" role="listitem">acme corp</span>
+            <span class="trust-logo" role="listitem">north&middot;loop</span>
+            <span class="trust-logo" role="listitem">paperline</span>
+            <span class="trust-logo" role="listitem">forge</span>
+            <span class="trust-logo" role="listitem">basecase</span>
+            <span class="trust-logo" role="listitem">veritex</span>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     LIVE SEARCH COMPOSER (HTMX-backed)
+     ============================================================ -->
+<section class="container search-section" aria-labelledby="search-heading" data-reveal>
+    <div class="search-head">
+        <span class="eyebrow">Live search</span>
+        <h2 id="search-heading" class="heading-section" style="max-width: 24ch;">Try it on your collection right now.</h2>
+    </div>
+
+    <form class="composer composer--inline" role="search" autocomplete="off" onsubmit="return false;">
+        <div class="composer-header">
+            <span class="agent-name">
+                <span class="status-dot" aria-hidden="true"></span>
+                Papermind &middot; retrieval agent
+            </span>
+            <span class="mono-label">v0.1</span>
+        </div>
+        <div class="composer-input-row">
+            <input
+                type="search"
+                name="q"
+                placeholder="Type a question — e.g. What does our policy say about refunds?"
+                hx-get="/search"
+                hx-trigger="input changed delay:400ms, search"
+                hx-target="#search-results"
+                hx-indicator="#search-spinner"
+                aria-label="Search your documents"
+            >
+        </div>
+        <div class="composer-hint">
+            <span id="search-spinner" class="htmx-indicator">Searching across your collection…</span>
+            <span><span class="kbd">/</span> to focus</span>
+        </div>
+    </form>
+
+    <div id="search-results"></div>
+</section>
+
+<!-- ============================================================
+     CAPABILITIES — three step rail
+     ============================================================ -->
+<section class="section section--rail" data-reveal>
+    <div class="container">
+        <div class="rail-head">
+            <span class="eyebrow">How it works</span>
+            <h2 class="heading-section" style="max-width: 22ch;">Three steps from raw files to grounded answers.</h2>
+        </div>
+
+        <div class="capability-grid capability-grid--rail">
+            <article class="capability-card capability-card--rail">
+                <span class="rail-step">01</span>
+                <span class="mono-label">Ingest</span>
+                <h3 class="heading-card">Upload anything</h3>
+                <p class="body">PDF, text, and markdown files are extracted, chunked, and embedded into a local ChromaDB collection.</p>
+                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
+                    <rect x="14" y="10" width="36" height="44" rx="2"/>
+                    <path d="M22 22h20M22 30h20M22 38h12"/>
+                    <path d="M32 6v8M28 10l4-4 4 4"/>
+                </svg>
+            </article>
+            <article class="capability-card capability-card--rail">
+                <span class="rail-step">02</span>
+                <span class="mono-label">Retrieve</span>
+                <h3 class="heading-card">Semantic search</h3>
+                <p class="body">Queries are embedded with the same model and matched against the closest passages in your corpus.</p>
+                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
+                    <circle cx="28" cy="28" r="14"/>
+                    <path d="M38 38l14 14"/>
+                    <circle cx="28" cy="28" r="3" fill="currentColor"/>
+                </svg>
+            </article>
+            <article class="capability-card capability-card--rail">
+                <span class="rail-step">03</span>
+                <span class="mono-label">Answer</span>
+                <h3 class="heading-card">Grounded responses</h3>
+                <p class="body">Top chunks are passed to the chat model with citations, so every answer is traceable to a source.</p>
+                <svg class="rail-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.25">
+                    <path d="M10 16h44v28a4 4 0 0 1-4 4H26l-10 8v-8h-2a4 4 0 0 1-4-4z"/>
+                    <path d="M22 28h20M22 36h12"/>
+                </svg>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     DARK FEATURE BAND — live collection status
+     ============================================================ -->
+<section class="container">
+    <div class="dark-feature dark-feature--rich" data-reveal>
+        <div class="dark-feature-copy">
+            <span class="eyebrow">Collection status</span>
+            <h3 class="heading-card">Your workspace, in numbers.</h3>
+            <p class="body">Connected to ChromaDB. Reading collection metrics in real time.</p>
+            <div class="health-row">
+                <span class="health-pill" id="health-pill">
+                    <span class="status-dot status-dot--live"></span>
+                    checking…
+                </span>
+                <a href="/api/v1/health" class="btn-secondary" style="color:#ffffff;">Open raw response &rarr;</a>
+            </div>
+        </div>
+        <div class="stat-block">
+            <div class="stat">
+                <span class="stat-value" id="stat-docs">0</span>
+                <span class="stat-label">Documents</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="stat-chunks">0</span>
+                <span class="stat-label">Chunks</span>
+            </div>
+        </div>
+
+        <!-- Floating accent -->
+        <svg class="dark-feature-accent" viewBox="0 0 600 600" aria-hidden="true">
+            <defs>
+                <radialGradient id="dfg" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ff7759" stop-opacity="0.18"/>
+                    <stop offset="100%" stop-color="#003c33" stop-opacity="0"/>
+                </radialGradient>
+            </defs>
+            <circle cx="300" cy="300" r="300" fill="url(#dfg)"/>
+        </svg>
+    </div>
+</section>
+
+<!-- ============================================================
+     CORAL MARQUEE
+     ============================================================ -->
+<section class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+        <span>AI moves fast</span><span class="dot">●</span>
+        <span>papermind</span><span class="dot">●</span>
+        <span>retrieve · reason · answer</span><span class="dot">●</span>
+        <span>AI moves fast</span><span class="dot">●</span>
+        <span>papermind</span><span class="dot">●</span>
+        <span>retrieve · reason · answer</span><span class="dot">●</span>
+        <span>AI moves fast</span><span class="dot">●</span>
+        <span>papermind</span><span class="dot">●</span>
+        <span>retrieve · reason · answer</span><span class="dot">●</span>
+    </div>
+</section>
+
+<!-- ============================================================
+     GSAP + page choreography
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ----- Word splitter (no SplitText dependency) ----- */
+    document.querySelectorAll('.split-words').forEach(function (el) {
+        var words = el.textContent.trim().split(/\s+/);
+        el.innerHTML = words.map(function (w) {
+            return '<span class="word-wrap"><span class="word">' + w + '</span></span>';
+        }).join(' ');
+    });
+
+    /* ----- HERO timeline ----- */
+    var heroTl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+    heroTl.from('.hero-copy .reveal-mask span', {
+        yPercent: 110, duration: 0.9
+    });
+
+    heroTl.from('.split-words .word', {
+        yPercent: 110, duration: 1.0, stagger: 0.045
+    }, '-=0.65');
+
+    heroTl.from('.hero-copy .fade-up', {
+        y: 24, opacity: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out'
+    }, '-=0.55');
+
+    heroTl.from('.agent-console', {
+        y: 60, opacity: 0, duration: 1.0, ease: 'power3.out'
+    }, '-=0.7');
+
+    heroTl.from('.photo-card', {
+        y: 60, opacity: 0, duration: 1.0, ease: 'power3.out'
+    }, '-=0.85');
+
+    /* ----- Agent console: typewriter prompt + stream chunks + chips ----- */
+    var promptEl = document.querySelector('[data-typewriter]');
+    if (promptEl) {
+        var fullText = promptEl.textContent;
+        promptEl.textContent = '';
+        var typeTl = gsap.timeline({
+            scrollTrigger: { trigger: '.agent-console', start: 'top 80%' }
+        });
+        fullText.split('').forEach(function (ch) {
+            typeTl.call(function () { promptEl.textContent += ch; }, null, '+=0.02');
+        });
+        typeTl.fromTo('.stream-chunk',
+            { opacity: 0, y: 6 },
+            { opacity: 1, y: 0, duration: 0.4, stagger: 0.18, ease: 'power2.out' },
+            '+=0.25');
+        typeTl.from('.citation-chip', {
+            opacity: 0, y: 10, duration: 0.4, stagger: 0.1, ease: 'power2.out'
+        }, '-=0.2');
+    }
+
+    /* ----- Photo card: orbit drift + parallax ----- */
+    gsap.to('.photo-orbit', {
+        rotation: 360, svgOrigin: '280 100',
+        duration: 60, repeat: -1, ease: 'none'
+    });
+
+    /* ----- Trust strip ----- */
+    gsap.from('.trust-logo', {
+        opacity: 0, y: 12, duration: 0.6, stagger: 0.08, ease: 'power2.out',
+        scrollTrigger: { trigger: '.trust-strip', start: 'top 80%' }
+    });
+
+    /* ----- Section reveal pattern (eyebrow → heading) ----- */
+    gsap.utils.toArray('[data-reveal]').forEach(function (section) {
+        var tl = gsap.timeline({
+            scrollTrigger: { trigger: section, start: 'top 78%' }
+        });
+        var eyebrow = section.querySelector('.eyebrow');
+        var heading = section.querySelector('.heading-section, .heading-card');
+        if (eyebrow) tl.from(eyebrow, { y: 16, opacity: 0, duration: 0.6, ease: 'power3.out' });
+        if (heading) tl.from(heading, { y: 22, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.35');
+    });
+
+    /* ----- Capability rail cards ----- */
+    gsap.from('.capability-card--rail', {
+        y: 36, opacity: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out',
+        scrollTrigger: { trigger: '.capability-grid--rail', start: 'top 78%' }
+    });
+
+    gsap.utils.toArray('.rail-step').forEach(function (el) {
+        var target = parseInt(el.textContent, 10);
+        var obj = { v: 0 };
+        gsap.to(obj, {
+            v: target, duration: 1.0, ease: 'power2.out',
+            onUpdate: function () { el.textContent = String(Math.round(obj.v)).padStart(2, '0'); },
+            scrollTrigger: { trigger: el, start: 'top 85%' }
+        });
+    });
+
+    /* ----- Health / stats counter ----- */
+    function animateCounter(el, to) {
+        var obj = { v: 0 };
+        gsap.to(obj, {
+            v: to, duration: 1.4, ease: 'power2.out',
+            onUpdate: function () { el.textContent = Math.round(obj.v).toLocaleString(); }
+        });
+    }
+
+    var healthPill = document.getElementById('health-pill');
+    var statDocs = document.getElementById('stat-docs');
+    var statChunks = document.getElementById('stat-chunks');
+
+    ScrollTrigger.create({
+        trigger: '.dark-feature--rich',
+        start: 'top 80%',
+        once: true,
+        onEnter: function () {
+            fetch('/api/v1/health').then(function (r) { return r.json(); }).then(function (data) {
+                var docs = (data && (data.documents || data.doc_count)) || 0;
+                var chunks = (data && (data.chunks || data.chunk_count || data.collection_count)) || 0;
+                if (statDocs) animateCounter(statDocs, docs);
+                if (statChunks) animateCounter(statChunks, chunks);
+                if (healthPill) {
+                    healthPill.innerHTML = '<span class="status-dot status-dot--live"></span>' +
+                        ((data && data.status) ? data.status : 'online');
+                }
+            }).catch(function () {
+                if (statDocs) animateCounter(statDocs, 0);
+                if (statChunks) animateCounter(statChunks, 0);
+                if (healthPill) {
+                    healthPill.innerHTML = '<span class="status-dot status-dot--live"></span>offline';
+                }
+            });
+        }
+    });
+
+    /* ----- Marquee (GSAP infinite slide) ----- */
+    var marqueeTrack = document.querySelector('.marquee-track');
+    if (marqueeTrack) {
+        gsap.to(marqueeTrack, {
+            xPercent: -50, duration: 28, ease: 'none', repeat: -1
+        });
+    }
+
+    /* ----- Scroll progress bar ----- */
+    gsap.to('.scroll-progress span', {
+        scaleX: 1, ease: 'none', transformOrigin: 'left center',
+        scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true }
+    });
+
+    /* ----- Cursor blob (hero only, pointer-fine devices) ----- */
+    var blob = document.querySelector('.cursor-blob');
+    var hero = document.querySelector('.hero--composed');
+    if (blob && hero && window.matchMedia('(pointer:fine)').matches) {
+        var bx = 0, by = 0, tx = 0, ty = 0;
+        hero.addEventListener('mousemove', function (e) {
+            var r = hero.getBoundingClientRect();
+            tx = e.clientX - r.left;
+            ty = e.clientY - r.top;
+            blob.style.opacity = '1';
+        });
+        hero.addEventListener('mouseleave', function () { blob.style.opacity = '0'; });
+        gsap.ticker.add(function () {
+            bx += (tx - bx) * 0.12;
+            by += (ty - by) * 0.12;
+            blob.style.transform = 'translate(' + (bx - 140) + 'px,' + (by - 140) + 'px)';
+        });
+    }
+
+    /* ----- '/' to focus search ----- */
+    document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            var input = document.querySelector('input[name="q"]');
+            if (input) { e.preventDefault(); input.focus(); }
+        }
+    });
+})();
+</script>
+{% endblock %}
+
+{% block lenis_init %}
+<script>
+    window.__lenis = new Lenis({ lerp: 0.08 });
+    window.__lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(time) { window.__lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+</script>
+{% endblock %}

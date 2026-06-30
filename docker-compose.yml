@@ -1,0 +1,21 @@
+services:
+  papermind:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /app/data
+      UPLOAD_DIR: /app/data/uploads
+      MCP_PAPERS_URL: http://127.0.0.1:8009/mcp
+      APP_DEBUG: "false"
+      EVAL_COLLECT_ENABLED: "false"
+      BRIEFING_RATE_LIMIT: "5/hour"
+      BRIEFING_RATE_LIMIT_ENABLED: "true"
+    volumes:
+      - papermind-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  papermind-data:

@@ -1,0 +1,210 @@
+{% if error %}
+
+{# ── Error state ───────────────────────────────────────────── #}
+<section class="section--tight">
+    <div class="container">
+        <div style="border:1px solid #e5e7eb; border-radius:16px; padding:40px 48px; background:#fff; max-width:640px;">
+            <span class="mono-label" style="color:#b30000; display:block; margin-bottom:16px;">Agent Error</span>
+            <h3 style="font-size:20px; font-weight:400; color:#17171c; margin:0 0 12px;">The research agent couldn't complete this run.</h3>
+            <p style="font-size:15px; line-height:1.6; color:#75758a; margin:0 0 24px;">
+                <code style="font-family:monospace; font-size:13px; background:#f2f2f2; padding:2px 6px; border-radius:4px;">{{ error }}</code>
+            </p>
+            <p style="font-size:14px; color:#93939f; margin:0;">Topic: <strong style="color:#212121;">{{ topic }}</strong></p>
+        </div>
+    </div>
+</section>
+
+{% else %}
+
+{# ── Agent activity feed ───────────────────────────────────── #}
+{% if tools_used %}
+<div class="container" style="margin-top:48px; margin-bottom:0;">
+    <details class="agent-feed" open>
+        <summary>
+            <span class="feed-title">
+                <span class="status-dot" style="background:#a5d6a7; box-shadow:none;" aria-hidden="true"></span>
+                Agent activity
+            </span>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <span class="feed-status-pill done">Completed &middot; {{ iterations }} revision{% if iterations != 1 %}s{% endif %}</span>
+                <span class="feed-toggle">Hide ↑</span>
+            </div>
+        </summary>
+        <ol class="feed-list">
+            {% for tool in tools_used %}
+            <li class="feed-item done">
+                <div class="feed-dot-wrap"><span class="feed-dot" aria-hidden="true"></span></div>
+                <span class="feed-text">{{ tool }}</span>
+            </li>
+            {% endfor %}
+            {% if papers_fetched %}
+            <li class="feed-item done">
+                <div class="feed-dot-wrap"><span class="feed-dot" aria-hidden="true"></span></div>
+                <span class="feed-text">Indexed <strong>{{ papers_fetched | length }} paper{% if papers_fetched | length != 1 %}s{% endif %}</strong></span>
+            </li>
+            {% endif %}
+        </ol>
+    </details>
+</div>
+{% endif %}
+
+{# ── Briefing document ─────────────────────────────────────── #}
+<article class="briefing-doc">
+    <div class="container">
+
+        {# Header #}
+        <header class="briefing-doc-header">
+            <div class="briefing-meta-row">
+                <span class="briefing-topic-chip">Research briefing</span>
+                {% if critique_score >= 8 %}
+                <span class="briefing-topic-chip" style="border-color: #003c33; background: rgba(0,60,51,0.07);">High quality</span>
+                {% endif %}
+            </div>
+            <h2 class="briefing-doc-title">{{ topic | title }}</h2>
+            <div class="briefing-doc-stats">
+                <span class="briefing-stat">{{ papers_fetched | length }} paper{% if papers_fetched | length != 1 %}s{% endif %} read</span>
+                <span class="briefing-stat">OpenAlex · Semantic Scholar</span>
+                <span class="briefing-stat">Quality score {{ critique_score }}/10</span>
+                {% if iterations > 0 %}
+                <span class="briefing-stat">{{ iterations }} revision{% if iterations != 1 %}s{% endif %}</span>
+                {% endif %}
+            </div>
+        </header>
+
+        {# ── Executive Summary ─────────────────────────────── #}
+        {% if briefing.executive_summary %}
+        <section class="briefing-section" aria-labelledby="exec-label">
+            <h3 class="section-label" id="exec-label">Executive summary</h3>
+            <div class="exec-card">
+                <p>{{ briefing.executive_summary }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {# ── Paper Breakdowns ──────────────────────────────── #}
+        {% if briefing.paper_breakdowns %}
+        <section class="briefing-section" aria-labelledby="papers-label">
+            <h3 class="section-label" id="papers-label">What these papers found</h3>
+            <ul class="novelty-list" role="list">
+                {% for paper in briefing.paper_breakdowns %}
+                <li class="novelty-item">
+                    <span class="novelty-marker" aria-hidden="true"></span>
+                    <div class="novelty-content">
+                        <div class="novelty-title">{{ paper.title }}</div>
+                        <p class="novelty-desc">{{ paper.contribution }}</p>
+                        {% if paper.key_result and paper.key_result != 'not available' %}
+                        <p class="novelty-desc" style="margin-top:6px; color: var(--ink);">
+                            <strong style="font-weight:500;">Key result:</strong> {{ paper.key_result }}
+                        </p>
+                        {% endif %}
+                        <div style="display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+                            {% if paper.relevant_to %}
+                            <span class="novelty-source">Answers: {{ paper.relevant_to }}</span>
+                            {% endif %}
+                            <span class="technique-verdict {% if 'full text' in paper.confidence %}high{% endif %}" style="margin-top:0;">
+                                {{ paper.confidence }}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        {# ── Synthesis ─────────────────────────────────────── #}
+        {% if briefing.synthesis %}
+        <section class="briefing-section" aria-labelledby="synthesis-label">
+            <h3 class="section-label" id="synthesis-label">Synthesis</h3>
+            <div class="exec-card">
+                <p>{{ briefing.synthesis }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {# ── Gaps ──────────────────────────────────────────── #}
+        {% if briefing.gaps %}
+        <section class="briefing-section" aria-labelledby="gaps-label">
+            <h3 class="section-label" id="gaps-label">Open questions</h3>
+            <div class="exec-card" style="border-left-color: var(--action-blue); background: var(--pale-blue);">
+                <p>{{ briefing.gaps }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {# ── Recommended Reading ───────────────────────────── #}
+        {% if briefing.recommended_reading %}
+        <section class="briefing-section" aria-labelledby="rec-label">
+            <h3 class="section-label" id="rec-label">Recommended reading</h3>
+            <div class="verdict-banner attention">
+                <span class="verdict-badge">Read first</span>
+                <p class="verdict-text">{{ briefing.recommended_reading }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {# ── Fallback: raw string briefing ─────────────────── #}
+        {% if briefing is string and briefing %}
+        <section class="briefing-section" aria-labelledby="briefing-raw-label">
+            <h3 class="section-label" id="briefing-raw-label">Briefing</h3>
+            <div class="exec-card" style="white-space:pre-wrap; font-size:15px; line-height:1.7;">{{ briefing }}</div>
+        </section>
+        {% endif %}
+
+        {# ── Source Papers ─────────────────────────────────── #}
+        {% if papers_fetched %}
+        <section class="briefing-section" aria-labelledby="citations-label">
+            <h3 class="section-label" id="citations-label">Source papers</h3>
+            <div class="citation-table" role="table" aria-label="Source papers">
+                {% for paper in papers_fetched %}
+                <div class="citation-row" role="row">
+                    <div>
+                        <div class="citation-title">
+                            {% if paper.doi %}
+                            <a href="{{ paper.doi }}" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline; text-underline-offset:3px;">{{ paper.title }}</a>
+                            {% elif paper.pdf_url %}
+                            <a href="{{ paper.pdf_url }}" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline; text-underline-offset:3px;">{{ paper.title }}</a>
+                            {% else %}
+                            {{ paper.title }}
+                            {% endif %}
+                        </div>
+                        {% if paper.authors %}
+                        <div class="citation-authors">
+                            {{ paper.authors[:3] | join(', ') }}{% if paper.authors | length > 3 %} et al.{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if paper.publication_date %}
+                    <span class="citation-venue">{{ paper.publication_date[:4] }}</span>
+                    {% endif %}
+                    {% if paper.citation_count is defined and paper.citation_count %}
+                    <span class="citation-relevance" style="color:var(--slate);">{{ paper.citation_count }} citations</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {# ── Data Quality Note ─────────────────────────────── #}
+        {% if briefing.data_quality_note %}
+        <section class="briefing-section" style="border-bottom:0; padding-bottom:0;">
+            <h3 class="section-label">Data quality</h3>
+            <p style="font-size:14px; color:var(--slate); line-height:1.65; max-width:72ch;">{{ briefing.data_quality_note }}</p>
+        </section>
+        {% endif %}
+
+    </div>
+</article>
+
+{% endif %}
+
+<script>
+    document.querySelectorAll('.agent-feed').forEach(feed => {
+        const toggle = feed.querySelector('.feed-toggle');
+        if (!toggle) return;
+        feed.addEventListener('toggle', () => {
+            toggle.textContent = feed.open ? 'Hide ↑' : 'Show ↓';
+        });
+    });
+</script>

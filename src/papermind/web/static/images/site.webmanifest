@@ -1,0 +1,23 @@
+{
+  "name": "Papermind",
+  "short_name": "Papermind",
+  "description": "RAG-powered document Q&A",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#17171c",
+  "icons": [
+    {
+      "src": "/static/images/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/images/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

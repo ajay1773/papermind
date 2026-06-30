@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Papermind — Upload documents{% endblock %}
+
+{% block content %}
+<section class="hero container">
+    <img src="/static/images/logo.svg" alt="" aria-hidden="true" class="hero-mark">
+    <span class="eyebrow">Ingest</span>
+    <h1 class="display-hero">Upload your documents.</h1>
+    <p class="lede">Drop in PDFs, text, or markdown. Files are extracted, chunked, embedded, and stored locally — ready for retrieval in seconds.</p>
+</section>
+
+<section class="section section--stone">
+    <div class="container">
+        <div class="upload-card">
+            <form hx-post="/api/v1/upload-document"
+                  hx-target="#upload-result"
+                  hx-swap="innerHTML"
+                  hx-encoding="multipart/form-data"
+                  hx-indicator="#upload-spinner">
+
+                <label for="upload-file" class="field-label">Source file</label>
+                <div class="file-dropzone">
+                    <input id="upload-file" type="file" name="file" accept=".pdf,.txt,.md" required>
+                    <p class="hint">PDF, .txt, or .md &middot; up to 25 MB</p>
+                </div>
+
+                <div class="form-row-actions">
+                    <button type="submit" class="btn-primary">Upload &amp; ingest</button>
+                    <span id="upload-spinner" class="htmx-indicator">
+                        <span class="mono-label">Embedding…</span>
+                    </span>
+                    <a href="/" class="btn-secondary">Back to search</a>
+                </div>
+            </form>
+
+            <div id="upload-result" aria-live="polite"></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <span class="eyebrow">What happens next</span>
+        <h2 class="heading-section" style="max-width: 22ch;">From file to embedding in one pass.</h2>
+
+        <div class="capability-grid">
+            <article class="capability-card">
+                <span class="mono-label">Step 01</span>
+                <h3 class="heading-card">Extract</h3>
+                <p class="body">Text is pulled from the file using format-aware parsers — PDF pages, plain text, or markdown.</p>
+            </article>
+            <article class="capability-card">
+                <span class="mono-label">Step 02</span>
+                <h3 class="heading-card">Chunk</h3>
+                <p class="body">Content is split into overlapping passages sized for the embedding model, preserving local context.</p>
+            </article>
+            <article class="capability-card">
+                <span class="mono-label">Step 03</span>
+                <h3 class="heading-card">Embed</h3>
+                <p class="body">Each chunk is embedded and written to ChromaDB with source metadata, so queries can cite back to the file.</p>
+            </article>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{
+    "inputs": {
+      "active_agent": "planner",
+      "agent_messages": [],
+      "candidate_papers": [],
+      "critique": null,
+      "critique_score": 0,
+      "date_range_days": 365,
+      "draft_briefing": {},
+      "errors": [],
+      "extracted_findings": [],
+      "fetched_papers": [],
+      "iterations": 0,
+      "memory_context": {},
+      "papers_to_skip": [],
+      "research_plan": [],
+      "research_questions": [],
+      "status": "planning",
+      "suggested_query": "",
+      "supervisor_reasoning": "",
+      "target_paper_count": 20,
+      "tools_used": [],
+      "user_topic": "Small language models in healthcare"
+    },
+    "metadata": {
+      "LANGSMITH_ENDPOINT": "https://api.smith.langchain.com",
+      "LANGSMITH_PROJECT": "papermind",
+      "LANGSMITH_TRACING": "true",
+      "ls_integration": "langgraph",
+      "ls_run_depth": 0,
+      "revision_id": "62d83b9",
+      "thread_id": "035e0bbc-36f2-4d36-bd80-2379f3206572"
+    },
+    "langsmith": {
+      "organization": {
+        "name": "Personal",
+        "id": "275409bf-703d-4eac-a84b-3f944e0c903d"
+      },
+      "workspace": {
+        "name": "Workspace 1",
+        "id": "9fe2fae2-af81-4dd9-b8fc-a942c1561a1c"
+      },
+      "tracing_project": {
+        "id": "1fbc4431-97c3-443a-ac02-35814d5db3a0",
+        "name": "papermind"
+      }
+    }
+  }
