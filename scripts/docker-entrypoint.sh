@@ -12,8 +12,16 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# MCP binds asynchronously; brief wait before the web app connects.
-sleep 3
+# Wait until MCP is actually accepting connections before starting the web app.
+MCP_PORT="${MCP_PAPERS_PORT:-8009}"
+echo "Waiting for MCP to be ready on port ${MCP_PORT}..."
+for i in $(seq 1 20); do
+  if python -c "import socket; s=socket.create_connection(('127.0.0.1', ${MCP_PORT}), timeout=1); s.close()" 2>/dev/null; then
+    echo "MCP ready after ${i}s."
+    break
+  fi
+  sleep 1
+done
 
 PORT="${PORT:-${APP_PORT:-8000}}"
 echo "Starting PaperMind on ${APP_HOST:-0.0.0.0}:${PORT}..."
