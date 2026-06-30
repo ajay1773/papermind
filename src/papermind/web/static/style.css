@@ -2341,6 +2341,36 @@ footer.site-footer--composed {
     margin-top: 16px;
 }
 
+/* ── Gap / open questions list ───────────────────────────── */
+
+.briefing-gap-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 72ch;
+}
+
+.briefing-gap-list li {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink);
+    padding: 14px 0 14px 20px;
+    position: relative;
+}
+
+.briefing-gap-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 22px;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--action-blue);
+    opacity: 0.5;
+}
+
 /* ── Novelty list ─────────────────────────────────────────── */
 
 .novelty-list {

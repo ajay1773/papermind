@@ -1,3 +1,4 @@
+import re
 import uuid
 from pathlib import Path
 from urllib.parse import quote_plus
@@ -14,6 +15,33 @@ from papermind.web.limiter import limiter
 WEB_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=WEB_DIR / "templates")
 templates.env.filters["urlencode"] = quote_plus
+
+
+def _strip_openalex_ids(value: str) -> str:
+    if not isinstance(value, str):
+        return value
+    return re.sub(r"\s*\(openalex_id:\s*W\d+(?:,\s*W\d+)*\)", "", value).strip()
+
+
+def _parse_bullets(value: str) -> list:
+    if not isinstance(value, str):
+        return [value] if value else []
+    items = []
+    for line in value.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith(("- ", "* ", "• ")):
+            items.append(line[2:].strip())
+        elif len(line) > 2 and line[0].isdigit() and line[1] in ".)" and line[2] == " ":
+            items.append(line[3:].strip())
+        else:
+            items.append(line)
+    return items
+
+
+templates.env.filters["strip_ids"] = _strip_openalex_ids
+templates.env.filters["parse_bullets"] = _parse_bullets
 
 router = APIRouter()
 

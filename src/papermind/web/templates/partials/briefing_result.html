@@ -1,6 +1,6 @@
 {% if error %}
 
-{# ── Error state — dark panel, Kanso pattern ───────────────── #}
+{# ── Error state ───────────────────────────────────────────── #}
 <section class="section--tight">
     <div class="container">
         <div class="eyebrow-row" style="margin-bottom:40px;">
@@ -56,7 +56,7 @@
 </div>
 {% endif %}
 
-{# ── Empty state — soft-stone card, Kanso pattern ─────────── #}
+{# ── Empty state ───────────────────────────────────────────── #}
 {% if briefing_is_empty %}
 <section class="section--tight">
     <div class="container">
@@ -88,39 +88,35 @@
 <article class="briefing-doc">
     <div class="container">
 
-        {# Header #}
+        {# ── Header ───────────────────────────────────────── #}
         <header class="briefing-doc-header">
             <div class="briefing-meta-row">
                 <span class="briefing-topic-chip">Research briefing</span>
-                {% if critique_score >= 8 %}
-                <span class="briefing-topic-chip" style="border-color: #003c33; background: rgba(0,60,51,0.07);">High quality</span>
-                {% endif %}
             </div>
             <h2 class="briefing-doc-title">{{ topic | title }}</h2>
             <div class="briefing-doc-stats">
-                <span class="briefing-stat">{{ papers_fetched | length }} paper{% if papers_fetched | length != 1 %}s{% endif %} read</span>
+                <span class="briefing-stat">{{ papers_fetched | length }} paper{% if papers_fetched | length != 1 %}s{% endif %} reviewed</span>
                 <span class="briefing-stat">OpenAlex · Semantic Scholar</span>
-                <span class="briefing-stat">Quality score {{ critique_score }}/10</span>
                 {% if iterations > 0 %}
                 <span class="briefing-stat">{{ iterations }} revision{% if iterations != 1 %}s{% endif %}</span>
                 {% endif %}
             </div>
         </header>
 
-        {# ── Executive Summary ─────────────────────────────── #}
+        {# ── Executive summary ─────────────────────────────── #}
         {% if briefing.executive_summary %}
         <section class="briefing-section" aria-labelledby="exec-label">
             <h3 class="section-label" id="exec-label">Executive summary</h3>
             <div class="exec-card">
-                <p>{{ briefing.executive_summary }}</p>
+                <p>{{ briefing.executive_summary | strip_ids }}</p>
             </div>
         </section>
         {% endif %}
 
-        {# ── Paper Breakdowns ──────────────────────────────── #}
+        {# ── Key findings ──────────────────────────────────── #}
         {% if briefing.paper_breakdowns %}
-        <section class="briefing-section" aria-labelledby="papers-label">
-            <h3 class="section-label" id="papers-label">What these papers found</h3>
+        <section class="briefing-section" aria-labelledby="findings-label">
+            <h3 class="section-label" id="findings-label">Key findings</h3>
             <ul class="novelty-list" role="list">
                 {% for paper in briefing.paper_breakdowns %}
                 <li class="novelty-item">
@@ -129,18 +125,15 @@
                         <div class="novelty-title">{{ paper.title }}</div>
                         <p class="novelty-desc">{{ paper.contribution }}</p>
                         {% if paper.key_result and paper.key_result != 'not available' %}
-                        <p class="novelty-desc" style="margin-top:6px; color: var(--ink);">
+                        <p class="novelty-desc" style="margin-top:8px; color:var(--ink);">
                             <strong style="font-weight:500;">Key result:</strong> {{ paper.key_result }}
                         </p>
                         {% endif %}
-                        <div style="display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap:wrap;">
-                            {% if paper.relevant_to %}
-                            <span class="novelty-source">Answers: {{ paper.relevant_to }}</span>
-                            {% endif %}
-                            <span class="technique-verdict {% if 'full text' in paper.confidence %}high{% endif %}" style="margin-top:0;">
-                                {{ paper.confidence }}
-                            </span>
+                        {% if paper.confidence and 'full text' in paper.confidence %}
+                        <div style="margin-top:10px;">
+                            <span style="font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--deep-green); background:var(--pale-green); padding:4px 10px; border-radius:9999px;">Full text</span>
                         </div>
+                        {% endif %}
                     </div>
                 </li>
                 {% endfor %}
@@ -148,33 +141,42 @@
         </section>
         {% endif %}
 
-        {# ── Synthesis ─────────────────────────────────────── #}
+        {# ── The big picture ───────────────────────────────── #}
         {% if briefing.synthesis %}
         <section class="briefing-section" aria-labelledby="synthesis-label">
-            <h3 class="section-label" id="synthesis-label">Synthesis</h3>
+            <h3 class="section-label" id="synthesis-label">The big picture</h3>
             <div class="exec-card">
-                <p>{{ briefing.synthesis }}</p>
+                <p>{{ briefing.synthesis | strip_ids }}</p>
             </div>
         </section>
         {% endif %}
 
-        {# ── Gaps ──────────────────────────────────────────── #}
+        {# ── What's still unknown ──────────────────────────── #}
         {% if briefing.gaps %}
+        {% set gap_items = briefing.gaps | strip_ids | parse_bullets %}
         <section class="briefing-section" aria-labelledby="gaps-label">
-            <h3 class="section-label" id="gaps-label">Open questions</h3>
-            <div class="exec-card" style="background: var(--pale-blue);">
-                <p>{{ briefing.gaps }}</p>
+            <h3 class="section-label" id="gaps-label">What's still unknown</h3>
+            {% if gap_items | length > 1 %}
+            <ul class="briefing-gap-list">
+                {% for item in gap_items %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="exec-card" style="background:var(--pale-blue);">
+                <p>{{ briefing.gaps | strip_ids }}</p>
             </div>
+            {% endif %}
         </section>
         {% endif %}
 
-        {# ── Recommended Reading ───────────────────────────── #}
+        {# ── Recommended reading ───────────────────────────── #}
         {% if briefing.recommended_reading %}
         <section class="briefing-section" aria-labelledby="rec-label">
             <h3 class="section-label" id="rec-label">Recommended reading</h3>
             <div class="verdict-banner attention">
-                <span class="verdict-badge">Read first</span>
-                <p class="verdict-text">{{ briefing.recommended_reading }}</p>
+                <span class="verdict-badge">Start here</span>
+                <p class="verdict-text">{{ briefing.recommended_reading | strip_ids }}</p>
             </div>
         </section>
         {% endif %}
@@ -187,11 +189,11 @@
         </section>
         {% endif %}
 
-        {# ── Source Papers ─────────────────────────────────── #}
+        {# ── Papers reviewed ───────────────────────────────── #}
         {% if papers_fetched %}
         <section class="briefing-section" aria-labelledby="citations-label">
-            <h3 class="section-label" id="citations-label">Source papers</h3>
-            <div class="citation-table" role="table" aria-label="Source papers">
+            <h3 class="section-label" id="citations-label">Papers reviewed</h3>
+            <div class="citation-table" role="table" aria-label="Papers reviewed">
                 {% for paper in papers_fetched %}
                 <div class="citation-row" role="row">
                     <div>
@@ -219,14 +221,6 @@
                 </div>
                 {% endfor %}
             </div>
-        </section>
-        {% endif %}
-
-        {# ── Data Quality Note ─────────────────────────────── #}
-        {% if briefing.data_quality_note %}
-        <section class="briefing-section" style="border-bottom:0; padding-bottom:0;">
-            <h3 class="section-label">Data quality</h3>
-            <p style="font-size:14px; color:var(--slate); line-height:1.65; max-width:72ch;">{{ briefing.data_quality_note }}</p>
         </section>
         {% endif %}
 
