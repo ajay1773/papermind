@@ -101,6 +101,93 @@
             ? 'Looks like an abbreviation — try the full term for better results, e.g. "Small Language Models" instead of "SLM".'
             : '';
     });
+
+    // ── Loading state ──────────────────────────────────────────
+
+    function escapeHTML(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function buildLoadingHTML(safeTopic) {
+        const steps = [
+            'Planning research strategy',
+            'Searching OpenAlex for papers',
+            'Fetching and reading papers',
+            'Extracting key findings',
+            'Drafting structured briefing',
+            'Reviewing and refining',
+        ];
+        const items = steps.map((s, i) => `
+            <li data-step="${i}" style="display:grid;grid-template-columns:20px 1fr;gap:0 14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:center;">
+                <div style="display:flex;align-items:center;">
+                    <span class="step-dot${i === 0 ? ' step-dot--active' : ''}"></span>
+                </div>
+                <span class="step-text${i === 0 ? ' step-text--active' : ''}">${escapeHTML(s)}</span>
+            </li>`).join('');
+
+        return `
+        <section class="section--tight">
+            <div class="container">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--slate);">
+                    <span>/ Running</span>
+                    <span style="color:var(--muted-slate);">(01)</span>
+                </div>
+                <div style="background:var(--near-black);border-radius:var(--r-md);padding:40px 48px;max-width:680px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <span style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.7);">
+                            <span class="status-dot status-dot--live" aria-hidden="true"></span>
+                            Agent running
+                        </span>
+                        <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ffad9b;border:1px solid rgba(255,173,155,0.3);padding:5px 12px;border-radius:9999px;">In progress</span>
+                    </div>
+                    <ol id="loading-steps" style="list-style:none;padding:0;margin:0;">${items}</ol>
+                </div>
+                <p style="margin-top:20px;font-size:14px;color:var(--slate);max-width:44ch;line-height:1.6;">
+                    Reading up to 20 recent papers on <strong style="color:var(--ink);font-weight:500;">${safeTopic}</strong>. Typically 2–5 minutes.
+                </p>
+            </div>
+        </section>`;
+    }
+
+    let stepTimer = null;
+
+    document.querySelector('.briefing-composer')?.addEventListener('htmx:beforeRequest', function () {
+        const rawTopic = topicInput?.value.trim() || 'your topic';
+        clearInterval(stepTimer); // fix: clear any existing timer before starting a new one
+        document.getElementById('briefing-output').innerHTML = buildLoadingHTML(escapeHTML(rawTopic));
+
+        // Close over node references at injection time — avoids re-querying detached DOM
+        const stepNodes = Array.from(document.querySelectorAll('#loading-steps li'));
+        let current = 0;
+
+        stepTimer = setInterval(() => {
+            if (!stepNodes.length) { clearInterval(stepTimer); return; }
+            if (current < stepNodes.length) {
+                stepNodes[current].querySelector('.step-dot')?.classList.replace('step-dot--active', 'step-dot--done');
+                stepNodes[current].querySelector('.step-text')?.classList.remove('step-text--active');
+            }
+            current++;
+            if (current < stepNodes.length) {
+                stepNodes[current].querySelector('.step-dot')?.classList.add('step-dot--active');
+                stepNodes[current].querySelector('.step-text')?.classList.add('step-text--active');
+            } else {
+                clearInterval(stepTimer);
+            }
+        }, 25000);
+    });
+
+    document.querySelector('.briefing-composer')?.addEventListener('htmx:afterRequest', function () {
+        clearInterval(stepTimer);
+    });
+
+    // Pre-populate input from ?topic= query param (used by error retry link)
+    const prefillTopic = new URLSearchParams(window.location.search).get('topic');
+    if (prefillTopic && topicInput) topicInput.value = prefillTopic;
 </script>
 
 {% endblock %}

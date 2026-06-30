@@ -1,15 +1,23 @@
 {% if error %}
 
-{# ── Error state ───────────────────────────────────────────── #}
+{# ── Error state — dark panel, Kanso pattern ───────────────── #}
 <section class="section--tight">
     <div class="container">
-        <div style="border:1px solid #e5e7eb; border-radius:16px; padding:40px 48px; background:#fff; max-width:640px;">
-            <span class="mono-label" style="color:#b30000; display:block; margin-bottom:16px;">Agent Error</span>
-            <h3 style="font-size:20px; font-weight:400; color:#17171c; margin:0 0 12px;">The research agent couldn't complete this run.</h3>
-            <p style="font-size:15px; line-height:1.6; color:#75758a; margin:0 0 24px;">
-                <code style="font-family:monospace; font-size:13px; background:#f2f2f2; padding:2px 6px; border-radius:4px;">{{ error }}</code>
+        <div class="eyebrow-row" style="margin-bottom:40px;">
+            <span style="color:var(--coral);">/ Agent failed</span>
+            <span class="mono-label" style="color:var(--muted-slate);">(01)</span>
+        </div>
+        <div style="background:var(--near-black); border-radius:var(--r-md); padding:64px 48px; max-width:680px;">
+            <h3 style="font-family:var(--font-display); font-size:clamp(28px,4vw,42px); font-weight:500; color:var(--canvas); line-height:1.15; letter-spacing:-0.02em; margin:0 0 12px;">
+                Couldn't complete this run.
+            </h3>
+            <p style="font-size:16px; color:rgba(255,255,255,0.55); line-height:1.6; margin:0 0 32px;">
+                Topic: <strong style="color:var(--canvas); font-weight:500;">{{ topic }}</strong>
             </p>
-            <p style="font-size:14px; color:#93939f; margin:0;">Topic: <strong style="color:#212121;">{{ topic }}</strong></p>
+            <pre style="font-family:var(--font-mono); font-size:12px; line-height:1.6; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:20px 24px; border-radius:var(--r-sm); color:rgba(255,255,255,0.65); white-space:pre-wrap; word-break:break-all; margin:0 0 32px;">{{ error | e }}</pre>
+            <a href="/briefing?topic={{ topic | urlencode }}" style="display:inline-flex; align-items:center; gap:6px; background:var(--canvas); color:var(--near-black); padding:10px 22px; border-radius:var(--r-pill); font-family:var(--font-body); font-size:14px; font-weight:500; text-decoration:none; transition:background 200ms cubic-bezier(0.44,0,0.56,1);">
+                Try again +
+            </a>
         </div>
     </div>
 </section>
@@ -47,6 +55,34 @@
     </details>
 </div>
 {% endif %}
+
+{# ── Empty state — soft-stone card, Kanso pattern ─────────── #}
+{% if briefing_is_empty %}
+<section class="section--tight">
+    <div class="container">
+        <div class="eyebrow-row" style="margin-bottom:40px;">
+            <span>/ No results</span>
+            <span class="mono-label" style="color:var(--muted-slate);">(01)</span>
+        </div>
+        <div style="background:var(--soft-stone); border-radius:var(--r-md); padding:64px 48px; max-width:680px;">
+            <h3 style="font-family:var(--font-display); font-size:clamp(28px,4vw,42px); font-weight:500; color:var(--near-black); line-height:1.15; letter-spacing:-0.02em; margin:0 0 16px;">
+                No papers found for <span style="color:var(--slate);">{{ topic | title }}.</span>
+            </h3>
+            <p style="font-size:16px; color:var(--slate); line-height:1.6; max-width:44ch; margin:0 0 32px;">
+                OpenAlex returned 0 results. Try rephrasing or using a broader topic.
+            </p>
+            <a href="/briefing" style="display:inline-flex; align-items:center; gap:6px; background:var(--near-black); color:var(--canvas); padding:10px 22px; border-radius:var(--r-pill); font-family:var(--font-body); font-size:14px; font-weight:500; text-decoration:none; transition:background 200ms cubic-bezier(0.44,0,0.56,1);">
+                Try a new topic +
+            </a>
+            {% if papers_fetched | length == 0 %}
+            <p style="margin-top:28px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted-slate);">
+                Tip — avoid abbreviations: "large language models" not "LLMs"
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% else %}
 
 {# ── Briefing document ─────────────────────────────────────── #}
 <article class="briefing-doc">
@@ -197,7 +233,8 @@
     </div>
 </article>
 
-{% endif %}
+{% endif %}{# end empty/briefing check #}
+{% endif %}{# end error check #}
 
 <script>
     document.querySelectorAll('.agent-feed').forEach(feed => {

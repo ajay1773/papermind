@@ -1,5 +1,6 @@
 import uuid
 from pathlib import Path
+from urllib.parse import quote_plus
 
 from fastapi import APIRouter, Form, Request
 from fastapi.templating import Jinja2Templates
@@ -12,6 +13,7 @@ from papermind.web.limiter import limiter
 
 WEB_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=WEB_DIR / "templates")
+templates.env.filters["urlencode"] = quote_plus
 
 router = APIRouter()
 
@@ -92,12 +94,20 @@ async def briefing_submit(request: Request, topic: str = Form(...)):
             pass
         final = compiled_graph.get_state(config)
         values = final.values
+        briefing = values.get("draft_briefing", {})
+        briefing_is_empty = (
+            not briefing
+            or (isinstance(briefing, dict)
+                and not briefing.get("executive_summary")
+                and not briefing.get("paper_breakdowns"))
+        )
         return templates.TemplateResponse(
             request,
             "partials/briefing_result.html",
             {
                 "topic": topic,
-                "briefing": values.get("draft_briefing", {}),
+                "briefing": briefing,
+                "briefing_is_empty": briefing_is_empty,
                 "papers_fetched": values.get("fetched_papers", []),
                 "tools_used": values.get("tools_used", []),
                 "critique_score": values.get("critique_score", 0),

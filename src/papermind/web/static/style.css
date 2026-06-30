@@ -2629,6 +2629,38 @@ footer.site-footer--composed {
 .citation-relevance.high::before { background: #4caf50; }
 .citation-relevance.medium::before { background: var(--coral); }
 
+/* ── Loading step dots ────────────────────────────────────── */
+
+.step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transition: background 200ms cubic-bezier(0.44, 0, 0.56, 1), box-shadow 200ms cubic-bezier(0.44, 0, 0.56, 1);
+}
+
+.step-dot--active {
+    background: var(--coral);
+    box-shadow: 0 0 0 4px rgba(255, 119, 89, 0.2);
+}
+
+.step-dot--done {
+    background: #a5d6a7;
+    box-shadow: none;
+}
+
+.step-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color 200ms cubic-bezier(0.44, 0, 0.56, 1);
+}
+
+.step-text--active {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
