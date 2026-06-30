@@ -24,3 +24,8 @@ data/
 data/
 design-research/
 docs/
+runs/
+errored-run.json
+run-*.json
+evals/ragas_*.json
+evals/eval_samples.jsonl
