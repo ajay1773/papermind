@@ -1,5 +1,6 @@
 import logging
 import re
+import time
 from datetime import date, timedelta
 from typing import Optional, cast
 
@@ -147,10 +148,22 @@ def register(mcp: FastMCP) -> None:
                 "mailto": MAILTO,
             }
             logger.info("OpenAlex request | url=%s/works params=%s", OPENALEX_BASE, params)
-            with httpx.Client(timeout=15) as client:
-                resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-                resp.raise_for_status()
-            return resp.json().get("results", [])
+            last_exc: Exception | None = None
+            for attempt in range(3):
+                try:
+                    with httpx.Client(timeout=15) as client:
+                        resp = client.get(f"{OPENALEX_BASE}/works", params=params)
+                        resp.raise_for_status()
+                    return resp.json().get("results", [])
+                except httpx.HTTPStatusError as exc:
+                    if exc.response.status_code in (429, 500, 502, 503, 504) and attempt < 2:
+                        delay = 2 ** attempt
+                        logger.warning("OpenAlex %d, retrying in %ds (attempt %d/3)", exc.response.status_code, delay, attempt + 1)
+                        time.sleep(delay)
+                        last_exc = exc
+                    else:
+                        raise
+            raise last_exc  # type: ignore[misc]
 
         logger.info("search_papers_openalex called | query=%r days_back=%d max_results=%d", query, days_back, max_results)
         try:
