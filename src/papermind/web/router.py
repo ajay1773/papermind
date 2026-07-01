@@ -130,6 +130,7 @@ async def briefing_submit(request: Request, topic: str = Form(...)):
                 and not briefing.get("executive_summary")
                 and not briefing.get("paper_breakdowns"))
         )
+        agent_errors = values.get("errors", [])
         return templates.TemplateResponse(
             request,
             "partials/briefing_result.html",
@@ -137,6 +138,7 @@ async def briefing_submit(request: Request, topic: str = Form(...)):
                 "topic": topic,
                 "briefing": briefing,
                 "briefing_is_empty": briefing_is_empty,
+                "agent_errors": agent_errors,
                 "papers_fetched": values.get("fetched_papers", []),
                 "tools_used": values.get("tools_used", []),
                 "critique_score": values.get("critique_score", 0),

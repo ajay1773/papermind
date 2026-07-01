@@ -51,6 +51,20 @@ async def supervisor(state: PaperMindState) -> dict:
     has_findings = bool(state.get("extracted_findings"))
     has_briefing = isinstance(state.get("draft_briefing"), dict) and bool(state["draft_briefing"])
 
+    # Short-circuit on non-recoverable errors — no point cycling through planner again
+    has_fatal_error = any(not e.get("recoverable", True) for e in errors)
+    if has_fatal_error and not has_briefing:
+        logger.warning("Supervisor: non-recoverable error, forcing completion")
+        return {
+            "active_agent": "complete",
+            "supervisor_reasoning": "Non-recoverable error, cannot proceed",
+            "supervisor_turns": turns + 1,
+            "memory_context": memory_context,
+            "papers_to_skip": papers_to_skip,
+            "errors": errors,
+            "status": "complete",
+        }
+
     # Exit condition: good score OR enough revision attempts with a briefing
     if critique_score >= 7:
         decision = "complete"

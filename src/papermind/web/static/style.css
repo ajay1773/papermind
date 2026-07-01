@@ -2059,12 +2059,8 @@ footer.site-footer--composed {
     display: none;
 }
 
-.htmx-request .input-run-label { display: none; }
-
-.htmx-request .briefing-spinner,
-.briefing-spinner.htmx-indicator.htmx-request {
-    display: inline;
-}
+.input-run-btn.htmx-request .input-run-label { display: none; }
+.input-run-btn.htmx-request .briefing-spinner { display: inline; }
 
 /* ── Empty state — "what you'll get" ─────────────────────── */
 

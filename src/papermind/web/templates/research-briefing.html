@@ -23,7 +23,7 @@
               hx-post="/briefing"
               hx-target="#briefing-output"
               hx-swap="innerHTML"
-              hx-indicator="#briefing-spinner"
+              hx-indicator="#run-btn"
               autocomplete="off">
 
             <div class="briefing-composer-head">
@@ -59,8 +59,8 @@
                             <line x1="12" y1="19" x2="12" y2="22"/>
                         </svg>
                     </button>
-                    <button type="submit" class="input-run-btn">
-                        <span id="briefing-spinner" class="briefing-spinner htmx-indicator">Running…</span>
+                    <button type="submit" class="input-run-btn" id="run-btn">
+                        <span class="briefing-spinner">Running…</span>
                         <span class="input-run-label">Run →</span>
                     </button>
                 </div>

@@ -58,13 +58,25 @@
 
 {# ── Empty state ───────────────────────────────────────────── #}
 {% if briefing_is_empty %}
+{% set has_service_error = agent_errors and agent_errors | selectattr("recoverable", "equalto", false) | list | length > 0 %}
 <section class="section--tight">
     <div class="container">
         <div class="eyebrow-row" style="margin-bottom:40px;">
-            <span>/ No results</span>
+            <span>/ {{ "Service error" if has_service_error else "No results" }}</span>
             <span class="mono-label" style="color:var(--muted-slate);">(01)</span>
         </div>
         <div style="background:var(--soft-stone); border-radius:var(--r-md); padding:64px 48px; max-width:680px;">
+            {% if has_service_error %}
+            <h3 style="font-family:var(--font-display); font-size:clamp(28px,4vw,42px); font-weight:500; color:var(--near-black); line-height:1.15; letter-spacing:-0.02em; margin:0 0 16px;">
+                Research source temporarily unavailable.
+            </h3>
+            <p style="font-size:16px; color:var(--slate); line-height:1.6; max-width:44ch; margin:0 0 32px;">
+                OpenAlex returned a server error. This is usually brief — please try again in a minute.
+            </p>
+            <a href="/briefing?topic={{ topic | urlencode }}" style="display:inline-flex; align-items:center; gap:6px; background:var(--near-black); color:var(--canvas); padding:10px 22px; border-radius:var(--r-pill); font-family:var(--font-body); font-size:14px; font-weight:500; text-decoration:none; transition:background 200ms cubic-bezier(0.44,0,0.56,1);">
+                Retry +
+            </a>
+            {% else %}
             <h3 style="font-family:var(--font-display); font-size:clamp(28px,4vw,42px); font-weight:500; color:var(--near-black); line-height:1.15; letter-spacing:-0.02em; margin:0 0 16px;">
                 No papers found for <span style="color:var(--slate);">{{ topic | title }}.</span>
             </h3>
@@ -78,6 +90,7 @@
             <p style="margin-top:28px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted-slate);">
                 Tip — use full terms: "large language models" not "LLMs", "quantum computing" not "QC"
             </p>
+            {% endif %}
             {% endif %}
         </div>
     </div>
